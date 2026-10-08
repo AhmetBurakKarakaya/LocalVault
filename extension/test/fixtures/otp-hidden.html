@@ -1,0 +1,11 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="stylesheet" href="fixture.css"><title>OTP görünmez alan</title></head><body>
+<form class="card" onsubmit="return false"><h1>Doğrulama</h1>
+<div class="fake"><div class="cells" id="cells"></div>
+<input id="real" autocomplete="one-time-code" inputmode="numeric" maxlength="8" aria-label="Doğrulama kodu"></div>
+<button>Doğrula</button></form>
+<script>
+const cells = document.getElementById('cells');
+const real = document.getElementById('real');
+const draw = () => { cells.innerHTML = ''; for (let i = 0; i < 6; i++) cells.insertAdjacentHTML('beforeend', '<div class="cell">' + (real.value[i] ?? '') + '</div>'); };
+real.addEventListener('input', draw); draw();
+</script><script src="../harness.js"></script><script src="../../src/content/forms.js"></script><script src="../../src/content/ui.js"></script><script src="../../src/content/content.js"></script></body></html>

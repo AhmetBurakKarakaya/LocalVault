@@ -1,0 +1,44 @@
+LocalVault — Kurulum
+====================
+
+KURULUM
+  1. Bu zip dosyasını bir klasöre tamamen çıkarın.
+  2. install.cmd dosyasına çift tıklayın.
+     (Yönetici yetkisi gerekmez; uygulama yalnızca sizin kullanıcınız için kurulur.)
+  3. LocalVault açılır. İlk açılışta ana parolanızı belirleyip kasanızı oluşturun.
+
+  Kurulum yeri : %LOCALAPPDATA%\Programs\LocalVault
+  Kasa dosyası : %APPDATA%\LocalVault\vault.json   (kaldırma/güncellemede silinmez)
+
+  İsteğe bağlı seçenekler (PowerShell):
+    .\install.ps1 -AutoStart        Windows açılışında başlat
+    .\install.ps1 -AddToPath        localvault-cli komutunu PATH'e ekle
+    .\install.ps1 -NoLaunch         Kurulumdan sonra açma
+
+TARAYICI EKLENTİSİ
+  Chrome / Edge
+    1. chrome://extensions (Edge: edge://extensions) sayfasını açın.
+    2. "Geliştirici modu"nu açın.
+    3. "Paketlenmemiş öğe yükle" → %LOCALAPPDATA%\Programs\LocalVault\extension\chrome
+  Firefox
+    about:debugging#/runtime/this-firefox → "Geçici eklenti yükle" →
+    %LOCALAPPDATA%\Programs\LocalVault\extension\firefox\manifest.json
+    (İmzasız eklentiler Firefox kapanınca kaldırılır.)
+
+  Sonra eklenti simgesi → "Bağlan". LocalVault penceresinde açılan istekteki kodun
+  eklentidekiyle aynı olduğunu kontrol edip "İzin ver"e tıklayın.
+
+KISAYOLLAR
+  Tarayıcıda   Ctrl+Shift+L   Bu sayfadaki hesabı / doğrulama kodunu doldur
+  Masaüstünde  Ctrl+Alt+A     Öndeki pencereye kullanıcı adı ve parolayı yaz (Auto-Type)
+
+GÜNCELLEME
+  Yeni sürümün install.cmd dosyasını çalıştırın; kasanız ve ayarlarınız korunur.
+
+KALDIRMA
+  Ayarlar → Uygulamalar → Yüklü uygulamalar → LocalVault → Kaldır
+  Kasa dosyanız silinmez; tamamen temizlemek için %APPDATA%\LocalVault klasörünü elle silin.
+
+NOT
+  Uygulama dijital olarak imzalanmadığı için Windows SmartScreen "Tanınmayan uygulama"
+  uyarısı gösterebilir: "Ek bilgi" → "Yine de çalıştır".

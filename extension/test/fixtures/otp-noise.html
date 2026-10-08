@@ -1,0 +1,8 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="stylesheet" href="fixture.css"><title>Kod içeren ama OTP olmayan alanlar</title></head><body>
+<form class="card" onsubmit="return false"><h1>Ödeme</h1>
+<label>Kupon kodu</label><input name="couponCode">
+<label>Posta kodu</label><input name="postal" autocomplete="postal-code">
+<label>Resimdeki kodu girin</label><input name="captcha_code">
+<label>Davet kodu</label><input name="referralCode">
+<label>Kart son kullanma (AA)</label><div class="boxes"><input maxlength="2"><input maxlength="2"></div>
+<button>Öde</button></form><script src="../harness.js"></script><script src="../../src/content/forms.js"></script><script src="../../src/content/ui.js"></script><script src="../../src/content/content.js"></script></body></html>

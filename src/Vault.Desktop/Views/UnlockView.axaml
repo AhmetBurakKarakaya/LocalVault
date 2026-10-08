@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Vault.Desktop.ViewModels"
+             x:Class="Vault.Desktop.Views.UnlockView"
+             x:DataType="vm:UnlockViewModel">
+    <Border Classes="card" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Spacing="16">
+            <Image Source="/Assets/icon.png" Width="64" Height="64" HorizontalAlignment="Center" />
+
+            <StackPanel Spacing="4">
+                <TextBlock Classes="h1" Text="LocalVault" HorizontalAlignment="Center" />
+                <TextBlock Classes="secondary" Text="Kasanın kilidini açmak için ana parolanızı girin."
+                           TextWrapping="Wrap" TextAlignment="Center" />
+            </StackPanel>
+
+            <Border Classes="field" Background="{DynamicResource CodeBg}" Padding="12,8"
+                    IsVisible="{Binding Hint, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <TextBlock Text="{Binding Hint}" TextWrapping="Wrap" Foreground="{DynamicResource AccentText}" />
+            </Border>
+
+            <Border Classes="field" Padding="12,6">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <PathIcon Data="{StaticResource IconFolder}" Width="14" Height="14"
+                              Foreground="{DynamicResource TextSecondary}" />
+                    <TextBlock Grid.Column="1" Margin="10,0" VerticalAlignment="Center"
+                               Text="{Binding VaultFileName}" ToolTip.Tip="{Binding VaultPath}"
+                               TextTrimming="CharacterEllipsis" />
+                    <Button Grid.Column="2" Classes="link" Content="Değiştir" Command="{Binding BrowseCommand}" />
+                </Grid>
+            </Border>
+
+            <TextBox x:Name="PasswordBox" Classes="revealPasswordButton" PasswordChar="•"
+                     PlaceholderText="Ana parola" Text="{Binding Password}" />
+
+            <TextBlock Classes="error" Text="{Binding ErrorMessage}"
+                       IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+            <Button Classes="accent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Padding="0,10" IsDefault="True" Command="{Binding UnlockCommand}">
+                <Panel>
+                    <TextBlock Text="Kilidi aç" IsVisible="{Binding !IsBusy}" />
+                    <TextBlock Text="Açılıyor…" IsVisible="{Binding IsBusy}" />
+                </Panel>
+            </Button>
+            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+
+            <Button Classes="link" HorizontalAlignment="Center" Content="Yeni kasa oluştur"
+                    Command="{Binding CreateNewCommand}" />
+        </StackPanel>
+    </Border>
+</UserControl>

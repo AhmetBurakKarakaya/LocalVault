@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="tr">
+<head><meta charset="utf-8"><title>Gerçek eklenti: 6 kutu</title><link rel="stylesheet" href="fixture.css"></head>
+<body>
+  <form class="card" action="#" onsubmit="return false">
+    <h1>Güvenlik kodu</h1>
+    <div class="boxes" id="boxes"></div>
+    <button>Doğrula</button>
+  </form>
+  <script>
+    const host = document.getElementById('boxes');
+    for (let i = 0; i < 6; i++) host.insertAdjacentHTML('beforeend', '<input maxlength="1" inputmode="numeric">');
+    const boxes = [...host.querySelectorAll('input')];
+    boxes.forEach((b, i) => b.addEventListener('input', () => { if (b.value && boxes[i + 1]) boxes[i + 1].focus(); }));
+  </script>
+</body>
+</html>

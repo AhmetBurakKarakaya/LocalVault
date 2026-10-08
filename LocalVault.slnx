@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Vault.Bridge/Vault.Bridge.csproj" />
+    <Project Path="src/Vault.Cli/Vault.Cli.csproj" />
+    <Project Path="src/Vault.Core/Vault.Core.csproj" />
+    <Project Path="src/Vault.Desktop/Vault.Desktop.csproj" />
+    <Project Path="src/Vault.NativeHost/Vault.NativeHost.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Vault.Bridge.Tests/Vault.Bridge.Tests.csproj" />
+    <Project Path="tests/Vault.Bridge.TestServer/Vault.Bridge.TestServer.csproj" />
+    <Project Path="tests/Vault.Core.Tests/Vault.Core.Tests.csproj" />
+    <Project Path="tests/Vault.Desktop.Tests/Vault.Desktop.Tests.csproj" />
+  </Folder>
+</Solution>

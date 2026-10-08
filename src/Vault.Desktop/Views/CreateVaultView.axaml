@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Vault.Desktop.ViewModels"
+             xmlns:views="using:Vault.Desktop.Views"
+             x:Class="Vault.Desktop.Views.CreateVaultView"
+             x:DataType="vm:CreateVaultViewModel">
+    <Border Classes="card" Width="440" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Spacing="14">
+            <Image Source="/Assets/icon.png" Width="56" Height="56" HorizontalAlignment="Center" />
+
+            <StackPanel Spacing="4">
+                <TextBlock Classes="h1" Text="Yeni kasa oluştur" HorizontalAlignment="Center" />
+                <TextBlock Classes="secondary" TextWrapping="Wrap" TextAlignment="Center"
+                           Text="Tüm parolalarınız bu ana parolayla şifrelenir. Ana parola hiçbir yere kaydedilmez; unutursanız kasayı açmanın yolu yoktur." />
+            </StackPanel>
+
+            <StackPanel>
+                <TextBlock Classes="label" Text="Kasa dosyası" />
+                <Border Classes="field" Padding="12,6">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <PathIcon Data="{StaticResource IconFolder}" Width="14" Height="14"
+                                  Foreground="{DynamicResource TextSecondary}" />
+                        <TextBlock Grid.Column="1" Margin="10,0" VerticalAlignment="Center" FontSize="12"
+                                   Text="{Binding VaultPath}" ToolTip.Tip="{Binding VaultPath}"
+                                   TextTrimming="LeadingCharacterEllipsis" />
+                        <Button Grid.Column="2" Classes="link" Content="Değiştir" Command="{Binding BrowseCommand}" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+                <TextBlock Classes="label" Text="Ana parola" />
+                <TextBox x:Name="PasswordBox" Classes="revealPasswordButton" PasswordChar="•"
+                         Text="{Binding Password}" />
+                <ProgressBar Classes="strength" Value="{Binding StrengthValue}"
+                             Foreground="{Binding StrengthValue, Converter={x:Static views:Converters.StrengthBrush}}" />
+                <TextBlock Classes="caption" TextWrapping="Wrap" Text="{Binding StrengthText}" />
+            </StackPanel>
+
+            <StackPanel>
+                <TextBlock Classes="label" Text="Ana parola (tekrar)" />
+                <TextBox Classes="revealPasswordButton" PasswordChar="•" Text="{Binding ConfirmPassword}" />
+            </StackPanel>
+
+            <TextBlock Classes="error" Text="{Binding ErrorMessage}"
+                       IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+            <Button Classes="accent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Padding="0,10" IsDefault="True" Command="{Binding CreateCommand}">
+                <Panel>
+                    <TextBlock Text="Kasayı oluştur" IsVisible="{Binding !IsBusy}" />
+                    <TextBlock Text="Oluşturuluyor…" IsVisible="{Binding IsBusy}" />
+                </Panel>
+            </Button>
+            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+
+            <Button Classes="link" HorizontalAlignment="Center" Content="Mevcut kasayı aç"
+                    IsVisible="{Binding CanGoBack}" Command="{Binding BackCommand}" />
+        </StackPanel>
+    </Border>
+</UserControl>

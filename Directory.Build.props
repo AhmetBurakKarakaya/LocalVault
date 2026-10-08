@@ -1,0 +1,10 @@
+<Project>
+  <!-- Tüm projeler için ortak sürüm ve ürün bilgisi (exe özelliklerinde görünür). -->
+  <PropertyGroup>
+    <Version>0.5.0</Version>
+    <Product>LocalVault</Product>
+    <Company>LocalVault</Company>
+    <Copyright>© 2026 Ahmet Karakaya</Copyright>
+    <Description>Yerel, şifreli parola yöneticisi</Description>
+  </PropertyGroup>
+</Project>

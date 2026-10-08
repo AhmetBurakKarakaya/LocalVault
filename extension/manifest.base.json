@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "LocalVault",
+  "version": "0.5.0",
+  "description": "Yerel LocalVault kasanızdaki hesapları web sitelerinde güvenle doldurur.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu/JphyEeH58HoIKDadj5nYDQhzZB3uclaG85DqfZvPP9VMGLeMRDHkKSlx4CeqHI0vLJPZ9jkUzHhZFqcbK6fkf2KkA4HdVvJ4QMLp0K7htcqm374vYOsQ9I//OJ3c3bPJUzZ2w5FsWecXkm+q93gCVtajnRrPkx8rZ5/gj7SeAAwczmkw1PGoZSnVWBiedOgjFMYGzFsuS6czkBc+DCO4esMKpMP113rmRBA4pRHIvUCTKBeaPkU3jLf9boe+Or0yJEya/0v8fE7R/eTIuoIC6WqUN4Nxf2/QZ+Kx6Tr149/vvwC7lRkApipFQFmZpqVp3WXKd0wMSjtluPGdNb2QIDAQAB",
+  "permissions": ["nativeMessaging", "storage", "activeTab"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "LocalVault",
+    "default_icon": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png" }
+  },
+  "options_ui": { "page": "options/options.html", "open_in_tab": true },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content/forms.js", "content/ui.js", "content/content.js"],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ],
+  "commands": {
+    "fill-login": {
+      "suggested_key": { "default": "Ctrl+Shift+L", "mac": "Command+Shift+L" },
+      "description": "Bu sayfadaki hesabı doldur"
+    }
+  },
+  "icons": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" }
+}

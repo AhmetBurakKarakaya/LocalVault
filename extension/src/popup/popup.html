@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>LocalVault</title>
+  <link rel="stylesheet" href="../shared.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="../icons/icon-32.png" width="22" height="22" alt="">
+    <strong>LocalVault</strong>
+    <span id="badge" class="badge"></span>
+  </header>
+
+  <main id="content">
+    <p class="muted center">Bağlanıyor…</p>
+  </main>
+
+  <footer>
+    <span class="muted">Kısayol: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd></span>
+    <a href="#" id="open-options">Ayarlar</a>
+  </footer>
+
+  <template id="login-row">
+    <li class="login">
+      <span class="avatar"></span>
+      <span class="text">
+        <span class="title"></span><span class="sub"></span>
+        <button class="otp" hidden title="Kopyalamak için tıklayın"><span class="code"></span><span class="left"></span></button>
+      </span>
+      <button class="primary small fill">Doldur</button>
+    </li>
+  </template>
+
+  <script src="../lib/ui-common.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

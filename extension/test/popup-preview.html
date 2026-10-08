@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Açılır pencere önizleme</title>
+  <!-- Gerçek popup.html'in aynısı; eklenti API'si yerine sahte yanıtlar. ?otp → sayfa OTP adımında -->
+  <link rel="stylesheet" href="../src/shared.css">
+  <link rel="stylesheet" href="../src/popup/popup.css">
+  <style>html { background: #888; } body { margin: 20px; box-shadow: 0 8px 24px #0005; border-radius: 8px; }</style>
+  <script>
+    const otpStep = new URLSearchParams(location.search).has('otp');
+    globalThis.chrome = {
+      runtime: {
+        openOptionsPage() {},
+        async sendMessage(m) {
+          if (m.type === 'lv:status') return { state: 'ready', pairedAs: 'Chrome' };
+          if (m.type === 'lv:popupLogins') return { ok: true, tabId: 1, url: 'https://github.com/login', otpStep, data: { logins: [
+            { id: 'a1', title: 'GitHub', username: 'ahmet@example.com', hasTotp: true },
+            { id: 'b2', title: 'GitHub (iş)', username: 'ahmet.k@firma.com', hasTotp: false },
+          ] } };
+          if (m.type === 'lv:popupTotp') return { ok: true, data: { code: '594065', remaining: 18, period: 30 } };
+          return { ok: true };
+        },
+      },
+    };
+  </script>
+</head>
+<body></body>
+<script>
+  // popup.html gövdesini olduğu gibi kullan
+  fetch('../src/popup/popup.html').then(r => r.text()).then(html => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    document.body.innerHTML = doc.body.innerHTML.replace(/<script[\s\S]*?<\/script>/g, '');
+    for (const src of ['../src/lib/ui-common.js', '../src/popup/popup.js']) {
+      const s = document.createElement('script'); s.src = src; s.async = false; document.body.appendChild(s);
+    }
+  });
+</script>
+</html>

@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Vault.Desktop.ViewModels"
+             xmlns:views="using:Vault.Desktop.Views"
+             x:Class="Vault.Desktop.Views.ImportPreviewView"
+             x:DataType="vm:ImportPreviewViewModel">
+    <Border Classes="card" Width="560">
+        <StackPanel Spacing="12">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel>
+                    <TextBlock Classes="h2" Text="İçe aktar" />
+                    <TextBlock Classes="caption" Text="{Binding Source}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <Button Grid.Column="1" Classes="icon" Command="{Binding CancelCommand}" ToolTip.Tip="Kapat (Esc)">
+                    <PathIcon Data="{StaticResource IconClose}" />
+                </Button>
+            </Grid>
+
+            <TextBlock Text="{Binding Summary}" FontWeight="Medium" TextWrapping="Wrap" />
+
+            <Border Classes="field" Padding="4" MaxHeight="260">
+                <ScrollViewer>
+                    <StackPanel>
+                        <ItemsControl ItemsSource="{Binding Items}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:EntryListItemViewModel">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="6,4">
+                                        <Border Classes="avatar" Width="26" Height="26" CornerRadius="7"
+                                                Background="{Binding ColorIndex, Converter={x:Static views:Converters.AvatarBrush}}">
+                                            <TextBlock Text="{Binding Initial}" FontSize="12" />
+                                        </Border>
+                                        <StackPanel Grid.Column="1" Margin="10,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Title}" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Classes="caption" Text="{Binding Subtitle}" TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                        <PathIcon Grid.Column="2" Data="{StaticResource IconClock}" Width="13" Height="13"
+                                                  Foreground="{DynamicResource TextTertiary}" IsVisible="{Binding HasTotp}"
+                                                  ToolTip.Tip="Doğrulama kodu (TOTP) var" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Classes="caption" Margin="8,4" Text="{Binding MoreText}" IsVisible="{Binding HasMore}" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <StackPanel IsVisible="{Binding HasWarnings}" Spacing="2">
+                <TextBlock Classes="label" Text="Uyarılar" />
+                <ItemsControl ItemsSource="{Binding Warnings}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <TextBlock Classes="caption" Text="{Binding StringFormat='• {0}'}" TextWrapping="Wrap" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <Border Classes="field" Background="{DynamicResource DangerBg}" Padding="12,8" IsVisible="{Binding PlaintextFile}">
+                <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}"
+                           Text="CSV dosyası tüm parolaları şifresiz içerir. İçe aktardıktan sonra dosyayı silin (Geri Dönüşüm Kutusu'nu da boşaltın)." />
+            </Border>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <Button Content="Vazgeç" Command="{Binding CancelCommand}" />
+                <Button Classes="accent" Content="{Binding ImportText}" Command="{Binding ImportCommand}" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -1,0 +1,21 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="stylesheet" href="fixture.css"><title>Çok adımlı akış</title></head><body>
+<form class="card" id="f" onsubmit="return false"><h1 id="h">Oturum açın</h1><div id="step">
+<label for="id">E-posta</label><input id="id" type="email" name="identifier" autocomplete="username"></div>
+<button id="next">İleri</button></form>
+<script>
+// Adım 1: e-posta → Adım 2: parola → Adım 3: doğrulama kodu (aynı sayfada, SPA gibi)
+let stage = 1;
+document.getElementById('f').addEventListener('submit', () => {
+  const step = document.getElementById('step');
+  if (stage === 1) {
+    window.__email = document.getElementById('id').value;
+    step.innerHTML = '<p>' + window.__email + '</p><label for="pw">Parola</label><input id="pw" type="password" autocomplete="current-password">';
+    document.getElementById('h').textContent = 'Parolanızı girin';
+  } else if (stage === 2) {
+    window.__password = document.getElementById('pw').value;
+    step.innerHTML = '<label for="otp">Doğrulama kodu</label><input id="otp" autocomplete="one-time-code" inputmode="numeric" maxlength="6">';
+    document.getElementById('h').textContent = 'İki adımlı doğrulama';
+  }
+  stage++;
+});
+</script><script src="../harness.js"></script><script src="../../src/content/forms.js"></script><script src="../../src/content/ui.js"></script><script src="../../src/content/content.js"></script></body></html>

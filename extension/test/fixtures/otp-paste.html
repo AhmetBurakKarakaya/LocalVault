@@ -1,0 +1,20 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="stylesheet" href="fixture.css"><title>OTP yapıştırma</title></head><body>
+<form class="card" onsubmit="return false"><h1>Güvenlik kodu</h1>
+<div class="boxes" id="boxes"></div><div class="state" id="state"></div><button>Doğrula</button></form>
+<script>
+// Yalnızca yapıştırmayı ve gerçek tuş basışını işleyen bileşen: programatik "input" olaylarını geri alır.
+const host = document.getElementById('boxes');
+for (let i = 0; i < 6; i++) host.insertAdjacentHTML('beforeend', '<input maxlength="1" inputmode="numeric">');
+const boxes = [...host.querySelectorAll('input')];
+const model = ['', '', '', '', '', ''];
+const render = () => { boxes.forEach((b, i) => b.value = model[i]); document.getElementById('state').textContent = 'model=' + model.join(''); };
+boxes.forEach((b, i) => {
+  b.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6).split('');
+    digits.forEach((d, j) => model[j] = d);
+    render();
+  });
+  b.addEventListener('input', () => render());   // modelde olmayan değişikliği geri al
+});
+</script><script src="../harness.js"></script><script src="../../src/content/forms.js"></script><script src="../../src/content/ui.js"></script><script src="../../src/content/content.js"></script></body></html>

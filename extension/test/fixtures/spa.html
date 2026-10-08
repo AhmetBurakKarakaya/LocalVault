@@ -1,0 +1,8 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="stylesheet" href="fixture.css"><title>SPA</title></head><body>
+<div class="card"><h1>Uygulama yükleniyor…</h1><div id="app"></div></div>
+<script>
+setTimeout(() => {
+  document.querySelector('h1').textContent = 'Giriş';
+  document.getElementById('app').innerHTML = '<label>E-posta</label><input name="user_email" placeholder="ornek@site.com"><label>Şifre</label><input type="password" name="user_pass"><button>Devam</button>';
+}, 800);
+</script><script src="../harness.js"></script><script src="../../src/content/forms.js"></script><script src="../../src/content/ui.js"></script><script src="../../src/content/content.js"></script></body></html>

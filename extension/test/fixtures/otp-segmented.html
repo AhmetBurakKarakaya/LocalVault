@@ -1,0 +1,14 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="stylesheet" href="fixture.css"><title>OTP kutular</title></head><body>
+<form class="card" onsubmit="return false"><h1>Doğrulama kodu</h1><p>Kodu girin</p>
+<div class="boxes" id="boxes"></div><div class="state" id="state"></div><button>Doğrula</button></form>
+<script>
+// Otomatik ilerleyen 6 kutu (yaygın kalıp)
+const host = document.getElementById('boxes');
+for (let i = 0; i < 6; i++) host.insertAdjacentHTML('beforeend', '<input maxlength="1" inputmode="numeric" aria-label="Rakam ' + (i + 1) + '">');
+const boxes = [...host.querySelectorAll('input')];
+boxes.forEach((b, i) => b.addEventListener('input', () => {
+  b.value = b.value.replace(/\D/g, '').slice(-1);
+  if (b.value && boxes[i + 1]) boxes[i + 1].focus();
+  document.getElementById('state').textContent = 'kod=' + boxes.map(x => x.value).join('');
+}));
+</script><script src="../harness.js"></script><script src="../../src/content/forms.js"></script><script src="../../src/content/ui.js"></script><script src="../../src/content/content.js"></script></body></html>

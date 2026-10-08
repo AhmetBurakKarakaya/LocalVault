@@ -1,0 +1,98 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Vault.Desktop.ViewModels"
+             x:Class="Vault.Desktop.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+    <Border Classes="card" Width="540" Padding="28,22">
+        <StackPanel Spacing="6">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Classes="h2" Text="Ayarlar" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Classes="icon" Command="{Binding CancelCommand}" ToolTip.Tip="Kapat (Esc)">
+                    <PathIcon Data="{StaticResource IconClose}" />
+                </Button>
+            </Grid>
+
+            <TextBlock Classes="section" Text="Güvenlik" />
+            <Grid Classes="setting" ColumnDefinitions="*,Auto">
+                <TextBlock Text="Bilgisayar boşta kalınca kilitle" />
+                <ComboBox ItemsSource="{x:Static vm:SettingsViewModel.AutoLockOptions}" SelectedItem="{Binding AutoLock}" />
+            </Grid>
+            <Grid Classes="setting" ColumnDefinitions="*,Auto">
+                <TextBlock Text="Kopyalanan parolayı panodan sil" />
+                <ComboBox ItemsSource="{x:Static vm:SettingsViewModel.ClipboardOptions}"
+                          SelectedItem="{Binding ClipboardClear}" />
+            </Grid>
+            <Grid Classes="setting" ColumnDefinitions="*,Auto">
+                <TextBlock Text="Windows oturumu kilitlenince kasayı kilitle" />
+                <ToggleSwitch IsChecked="{Binding LockOnSessionLock}" />
+            </Grid>
+            <Grid Classes="setting" ColumnDefinitions="*,Auto">
+                <TextBlock Text="Pencere simge durumuna küçültülünce kilitle" />
+                <ToggleSwitch IsChecked="{Binding LockOnMinimize}" />
+            </Grid>
+
+            <TextBlock Classes="section" Text="Uygulama" />
+            <Grid Classes="setting" ColumnDefinitions="*,Auto">
+                <TextBlock Text="Tema" />
+                <ComboBox ItemsSource="{x:Static vm:SettingsViewModel.ThemeOptions}" SelectedItem="{Binding Theme}" />
+            </Grid>
+            <Grid Classes="setting" ColumnDefinitions="*,Auto">
+                <TextBlock Text="Kapat düğmesi uygulamayı tepsiye gizlesin" />
+                <ToggleSwitch IsChecked="{Binding MinimizeToTray}" />
+            </Grid>
+            <Grid Classes="setting" ColumnDefinitions="*,Auto">
+                <TextBlock Text="Açılışta pencereyi gösterme (yalnızca tepsi)" />
+                <ToggleSwitch IsChecked="{Binding StartMinimized}" />
+            </Grid>
+
+            <TextBlock Classes="section" Text="Auto-Type" IsVisible="{Binding AutoTypeSupported}" />
+            <Grid Classes="setting" ColumnDefinitions="*,Auto" IsVisible="{Binding AutoTypeSupported}">
+                <TextBlock Text="Ctrl+Alt+A ile etkin pencereye kullanıcı adı ve parola yaz" />
+                <ToggleSwitch IsChecked="{Binding AutoTypeEnabled}" />
+            </Grid>
+            <TextBlock Classes="caption" Text="{Binding AutoTypeStatus}" TextWrapping="Wrap" IsVisible="{Binding AutoTypeSupported}" />
+
+            <TextBlock Classes="section" Text="Tarayıcı" />
+            <Grid Classes="setting" ColumnDefinitions="*,Auto">
+                <TextBlock Text="Tarayıcı eklentisinin bağlanmasına izin ver" />
+                <ToggleSwitch IsChecked="{Binding BrowserIntegrationEnabled}" />
+            </Grid>
+            <TextBlock Classes="caption" Text="{Binding BrowserStatus}" TextWrapping="Wrap" />
+            <ItemsControl ItemsSource="{Binding Associations}" Margin="0,4,0,0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:BrowserAssociationItem">
+                        <Border Classes="field" Padding="12,6" Margin="0,2">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontWeight="Medium" />
+                                    <TextBlock Classes="caption" Text="{Binding CreatedText}" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Classes="link" Command="{Binding RemoveCommand}">
+                                    <TextBlock Text="Kaldır" Foreground="{DynamicResource DangerBrush}" />
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Classes="caption" Text="Henüz bağlı tarayıcı yok." IsVisible="{Binding !HasAssociations}" />
+
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" Margin="0,10,0,0" RowSpacing="2">
+                <TextBlock Classes="caption" Text="Kasa:" Margin="0,0,6,0" />
+                <TextBlock Grid.Column="1" Classes="caption" Text="{Binding VaultPath}"
+                           TextTrimming="LeadingCharacterEllipsis" ToolTip.Tip="{Binding VaultPath}" />
+                <TextBlock Grid.Row="1" Classes="caption" Text="Ayarlar:" Margin="0,0,6,0" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Classes="caption" Text="{Binding SettingsPath}"
+                           TextTrimming="LeadingCharacterEllipsis" ToolTip.Tip="{Binding SettingsPath}" />
+            </Grid>
+
+            <TextBlock Classes="error" Text="{Binding ErrorMessage}"
+                       IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,10,0,0">
+                <Button Content="Vazgeç" Command="{Binding CancelCommand}" />
+                <Button Classes="accent" Content="Kaydet" Command="{Binding SaveCommand}" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

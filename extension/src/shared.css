@@ -1,0 +1,81 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #111827;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --hover: #f3f4f6;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --danger: #dc2626;
+  --success: #16a34a;
+  --warn-bg: #fff7ed;
+  --code-bg: #eef4ff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1b1e23;
+    --fg: #e5e7eb;
+    --muted: #9ca3af;
+    --border: #2e333b;
+    --hover: #272b32;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --warn-bg: #3a2a17;
+    --code-bg: #1a2740;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+button {
+  font: inherit;
+  border: 1px solid var(--border);
+  background: var(--hover);
+  color: var(--fg);
+  border-radius: 7px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+button:hover { filter: brightness(0.97); }
+button:disabled { opacity: 0.55; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.primary:hover { background: var(--accent-hover); }
+button.danger { color: var(--danger); background: transparent; }
+button.small { padding: 4px 10px; font-size: 12px; }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.muted { color: var(--muted); }
+.center { text-align: center; }
+
+.badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--hover); color: var(--muted); }
+.badge.ready { background: rgba(22, 163, 74, 0.14); color: var(--success); }
+.badge.warn { background: rgba(234, 88, 12, 0.14); color: #ea580c; }
+
+.code {
+  font: 600 22px/1.2 "Cascadia Mono", Consolas, Menlo, monospace;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  background: var(--code-bg);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: inline-block;
+}
+
+kbd {
+  font: 11px "Cascadia Mono", Consolas, monospace;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0 4px;
+}

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>LocalVault ayarları</title>
+  <link rel="stylesheet" href="../shared.css">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <header>
+      <img src="../icons/icon-48.png" width="40" height="40" alt="">
+      <div>
+        <h1>LocalVault</h1>
+        <p class="muted">Tarayıcı eklentisi</p>
+      </div>
+    </header>
+
+    <section>
+      <h2>Bağlantı <span id="badge" class="badge"></span></h2>
+      <div id="connection"><p class="muted">Kontrol ediliyor…</p></div>
+    </section>
+
+    <section>
+      <h2>Doldurma</h2>
+      <label class="toggle">
+        <input type="checkbox" id="showIcons">
+        <span>
+          <strong>Giriş alanlarında LocalVault simgesini göster</strong>
+          <small class="muted">Simgeye tıklayınca bu siteye ait hesaplar listelenir.</small>
+        </span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="continueFlow">
+        <span>
+          <strong>Giriş adımlarını otomatik tamamla</strong>
+          <small class="muted">LocalVault ile bir hesabı doldurduktan sonra, aynı sekmede birkaç dakika içinde beliren parola
+            adımını (önce e-posta isteyen siteler) ve doğrulama kodu (2FA) adımını aynı hesapla doldurur.</small>
+        </span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="offerSave">
+        <span>
+          <strong>Yeni hesapları kaydetmeyi öner</strong>
+          <small class="muted">LocalVault'ta olmayan bir hesapla giriş yaptığınızda veya parolanızı değiştirdiğinizde sayfada
+            "Kaydet / Güncelle" önerisi gösterir. Kaydetme yalnızca sizin tıklamanızla yapılır.</small>
+        </span>
+      </label>
+      <div id="never-box" hidden>
+        <p class="muted" style="margin: 4px 0 6px 28px">Hiç sorulmayacak siteler:</p>
+        <ul id="never-list" class="never-list"></ul>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="autofillOnLoad">
+        <span>
+          <strong>Sayfa açılınca otomatik doldur</strong>
+          <small class="muted">Siteye kayıtlı tek bir hesap varsa sormadan doldurur. Kolaylık sağlar, ancak ele geçirilmiş
+            (XSS içeren) bir sayfanın görünmez formlarla parolanızı okumasına imkân verebilir; bu yüzden varsayılan olarak kapalıdır.</small>
+        </span>
+      </label>
+      <p class="muted">Klavye kısayolu: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd> — tarayıcının uzantı kısayolları sayfasından değiştirilebilir.</p>
+    </section>
+  </main>
+
+  <script src="../lib/ui-common.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
