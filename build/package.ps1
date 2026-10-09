@@ -36,7 +36,7 @@ function Invoke-Checked([string]$what, [scriptblock]$command) {
 Push-Location $root
 try {
     if (-not $SkipTests) {
-        Invoke-Checked '.NET testleri' { dotnet test --configuration Release --nologo --verbosity quiet }
+        Invoke-Checked '.NET testleri' { dotnet test --configuration Release --nologo --verbosity minimal }
         Invoke-Checked 'Eklenti testleri' { node --test 'extension/test/*.test.mjs' }
     }
 

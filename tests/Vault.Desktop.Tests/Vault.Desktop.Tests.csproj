@@ -2,6 +2,10 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <OutputType>Exe</OutputType>
+    <!-- Microsoft Testing Platform ile çalışır: VSTest yolu GitHub'ın Windows makinelerinde xUnit v3'ün
+         -assemblyInfo JSON'unu "Waiting 10 seconds for foreground threads" satırıyla bozuyordu. -->
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>

@@ -20,7 +20,7 @@ public partial class EntryEditorView : UserControl
     protected override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);
-        if (!e.Handled && e.Key == Key.S && e.KeyModifiers == VaultView.PrimaryModifier
+        if (!e.Handled && e.Key == Key.S && e.KeyModifiers == VaultView.CommandModifier(this)
             && DataContext is EntryEditorViewModel vm && vm.SaveCommand.CanExecute(null))
         {
             vm.SaveCommand.Execute(null);

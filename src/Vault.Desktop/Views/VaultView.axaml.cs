@@ -1,6 +1,8 @@
 using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.VisualTree;
 using Vault.Desktop.ViewModels;
 
 namespace Vault.Desktop.Views;
@@ -9,8 +11,13 @@ public partial class VaultView : UserControl
 {
     public VaultView() => InitializeComponent();
 
-    /// <summary>Kısayolların ana değiştiricisi: macOS'ta Cmd, diğerlerinde Ctrl.</summary>
-    internal static KeyModifiers PrimaryModifier => OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
+    /// <summary>
+    /// Kısayolların ana değiştiricisi platformun kendi ayarından okunur (macOS'ta Cmd, diğerlerinde Ctrl);
+    /// böylece metin kutularının kopyala/yapıştır tuşlarıyla her zaman aynı olur.
+    /// </summary>
+    internal static KeyModifiers CommandModifier(Visual visual) =>
+        visual.GetPlatformSettings()?.HotkeyConfiguration.CommandModifiers
+        ?? (OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control);
 
     // KeyBinding yerine kabarcıklanan KeyDown kullanılır: Avalonia 12'de KeyBinding eşleşen tuşu odaktaki
     // öğeye hiç ulaştırmıyordu (arama kutusunda Delete kaydı silmeye, Ctrl+C parolayı kopyalamaya gidiyordu).
@@ -21,7 +28,8 @@ public partial class VaultView : UserControl
         if (e.Handled || DataContext is not VaultViewModel vm)
             return;
 
-        if (e.Key == Key.F && e.KeyModifiers == PrimaryModifier)
+        var primary = CommandModifier(this);
+        if (e.Key == Key.F && e.KeyModifiers == primary)
         {
             SearchBox.Focus();
             SearchBox.SelectAll();
@@ -29,16 +37,16 @@ public partial class VaultView : UserControl
             return;
         }
 
-        if (Match(vm, e) is { } command && command.CanExecute(null))
+        if (Match(vm, e, primary) is { } command && command.CanExecute(null))
         {
             command.Execute(null);
             e.Handled = true;
         }
     }
 
-    private static ICommand? Match(VaultViewModel vm, KeyEventArgs e)
+    private static ICommand? Match(VaultViewModel vm, KeyEventArgs e, KeyModifiers primary)
     {
-        if (e.KeyModifiers == PrimaryModifier)
+        if (e.KeyModifiers == primary)
         {
             return e.Key switch
             {

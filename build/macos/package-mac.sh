@@ -32,7 +32,7 @@ step() { printf '\033[36m→ %s\033[0m\n' "$1"; }
 
 if [ "$SKIP_TESTS" -eq 0 ]; then
   step ".NET testleri"
-  dotnet test --configuration Release --nologo --verbosity quiet
+  dotnet test --configuration Release --nologo --verbosity minimal
   step "Eklenti testleri"
   node --test 'extension/test/*.test.mjs'
 fi

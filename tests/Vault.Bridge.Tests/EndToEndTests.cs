@@ -12,7 +12,8 @@ namespace Vault.Bridge.Tests;
 /// </summary>
 public sealed class EndToEndTests : IAsyncLifetime
 {
-    private readonly string _pipeName = "LocalVault.Test." + Guid.NewGuid().ToString("N");
+    // Kısa tutulur: macOS'ta kanal, uzun TMPDIR altında Unix soketi olur ve yol 104 karakteri aşamaz.
+    private readonly string _pipeName = "LVT." + Guid.NewGuid().ToString("N")[..12];
     private readonly FakeVault _vault = new();
     private readonly FakeUi _ui = new();
     private BridgeServer? _server;

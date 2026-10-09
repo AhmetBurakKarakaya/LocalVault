@@ -49,8 +49,9 @@ public sealed class KeyboardShortcutTests : IDisposable
         Dispatcher.UIThread.RunJobs();
     }
 
-    /// <summary>Kısayolların ana değiştiricisi: macOS'ta Cmd, diğerlerinde Ctrl.</summary>
-    private static RawInputModifiers Primary => OperatingSystem.IsMacOS() ? RawInputModifiers.Meta : RawInputModifiers.Control;
+    /// <summary>Platformun kısayol değiştiricisi (uygulama da bunu kullanır; headless ortamda Ctrl).</summary>
+    private RawInputModifiers Primary =>
+        _window!.GetPlatformSettings()!.HotkeyConfiguration.CommandModifiers == KeyModifiers.Meta ? RawInputModifiers.Meta : RawInputModifiers.Control;
 
     private bool PasswordCopied => _env.Clipboard.Copies.Any(c => c.Sensitive);
 
