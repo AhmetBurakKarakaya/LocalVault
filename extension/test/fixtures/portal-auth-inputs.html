@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="tr">
+<head><meta charset="utf-8"><title>Kurumsal portal 2FA (AngularJS kutuları)</title><link rel="stylesheet" href="fixture.css"></head>
+<body>
+  <!-- Gerçek bir kurumsal portalın 2FA penceresindeki davranışın yeniden kurgusu (AngularJS yönergesi):
+       - kutular tek tek değil, ortak kapsayıcıda dinlenir (keydown, paste, input, focus/capture);
+       - yapıştırma kodu HEMEN değil bir sonraki turda ($timeout) yazar ve odağı son dolu kutunun ardına taşır;
+       - her odakta kutunun içeriği bir sonraki turda seçilir ve her $timeout bir "digest" çalıştırır;
+       - rakam tuşu kutuyu kendisi doldurup ilerler; model boşalınca tüm kutular temizlenir;
+       - pencere sayfaya sonradan eklenir ve 250 ms sonra ilk kutu seçilir; 6 hane dolunca kendiliğinden
+         gönderim YOKTUR (Doğrula düğmesi ya da Enter).
+       Uçtan uca testte odak geçmişi zaman damgasıyla tutulur; simgeye tıkladıktan sonra odak durmalıdır.
+       ?nopaste: yapıştırma yok sayılır, eklenti kutuları tek tek doldurmak zorunda kalır. -->
+  <div class="card"><h1>Portal</h1><p>Giriş yapılıyor…</p></div>
+  <script>
+    window.__focusLog = [];        // [ms, kutu]
+    window.__submits = 0;
+    window.__digests = 0;
+    const t0 = performance.now();
+    let model = '';
+    const watchers = [];
+    function digest() {            // AngularJS $apply/$digest benzeri: izleyicileri çalıştır
+      window.__digests++;
+      for (const w of watchers) w();
+    }
+    const $timeout = (fn, ms = 0) => setTimeout(() => { fn(); digest(); }, ms);
+
+    function openDialog() {
+      const dialog = document.createElement('div');
+      dialog.className = 'card';
+      dialog.setAttribute('role', 'dialog');
+      dialog.innerHTML = '<h1>2FA (İki Faktörlü Kimlik Doğrulama)</h1>'
+        + '<p>Doğrulama uygulamasındaki <b>6 haneli kodu</b> girin.</p>'
+        + '<div class="boxes" id="auth" role="group" aria-label="Doğrulama kodu"></div>'
+        + '<button type="button" id="verify" disabled>Doğrula</button>';
+      document.body.appendChild(dialog);
+      const container = dialog.querySelector('#auth');
+      const boxes = [];
+      for (let i = 0; i < 6; i++) {
+        const box = document.createElement('input');
+        box.id = 'auth-input-' + i; box.type = 'text'; box.maxLength = 1; box.inputMode = 'numeric';
+        box.pattern = '[0-9]*'; box.autocomplete = i === 0 ? 'one-time-code' : 'off'; box.tabIndex = i + 1;
+        box.className = 'auth-input'; box.setAttribute('aria-label', (i + 1) + '. hane');
+        container.appendChild(box); boxes.push(box);
+      }
+      const sync = () => { model = boxes.map((b) => b.value).join(''); };
+      const focusAt = (i) => boxes[Math.max(0, Math.min(i, 5))].focus();
+      const fillFrom = (text, start) => {
+        const digits = text.replace(/\D/g, '').substring(0, 6 - start);
+        digits.split('').forEach((d, k) => { if (boxes[start + k]) boxes[start + k].value = d; });
+        sync();
+        focusAt(start + digits.length < 6 ? start + digits.length : 5);
+      };
+      const submit = () => { if (model.length === 6) window.__submits++; };
+      watchers.push(() => { if (!model) boxes.forEach((b) => { b.value = ''; }); });
+      watchers.push(() => { dialog.querySelector('#verify').disabled = model.length < 6; });
+      dialog.querySelector('#verify').addEventListener('click', submit);
+
+      container.addEventListener('keydown', (e) => {
+        const i = boxes.indexOf(e.target);
+        if (i === -1) return;
+        const key = e.key;
+        if ((e.ctrlKey || e.metaKey) && (key.toLowerCase() === 'v' || key.toLowerCase() === 'a')) return;
+        if (key === 'Tab') return;
+        if (key === 'Backspace') { e.preventDefault(); if (boxes[i].value) { boxes[i].value = ''; sync(); } else focusAt(i - 1); digest(); }
+        else if (key === 'ArrowLeft') { e.preventDefault(); focusAt(i - 1); }
+        else if (key === 'ArrowRight') { e.preventDefault(); focusAt(i + 1); }
+        else if (key === 'Enter') { submit(); digest(); }
+        else if (/^\d$/.test(key)) { e.preventDefault(); boxes[i].value = key; sync(); digest(); focusAt(i + 1); }
+        else e.preventDefault();
+      });
+      container.addEventListener('paste', (e) => {
+        if (location.search.includes('nopaste')) return;   // ?nopaste: yapıştırmayı desteklemeyen sürüm
+        e.preventDefault();
+        let i = boxes.indexOf(e.target); if (i === -1) i = 0;
+        const data = e.clipboardData || window.clipboardData;
+        if (data) { const text = data.getData('text/plain') || ''; $timeout(() => fillFrom(text, i)); }
+      });
+      container.addEventListener('input', (e) => {
+        if (boxes.indexOf(e.target) === -1) return;
+        const value = e.target.value;
+        if (value.length > 1) $timeout(() => fillFrom(value, 0));
+        else { sync(); digest(); }
+      });
+      container.addEventListener('focus', (e) => {
+        window.__focusLog.push([Math.round(performance.now() - t0), boxes.indexOf(e.target)]);
+        $timeout(() => e.target.select());
+      }, true);
+      $timeout(() => boxes[0].select(), 250);
+    }
+
+    // Pencere, "giriş" isteğinden sonra sayfaya eklenir (ngDialog gibi).
+    setTimeout(openDialog, 400);
+  </script>
+</body>
+</html>

@@ -251,6 +251,33 @@ try {
     boxStats.backward === 0 && boxStats.submits === 1, `geri dönüş ${boxStats.backward}, doğrulama ${boxStats.submits}`);
   await capture(page, 'page-otp-boxes');
 
+  // 4b) Kurumsal portal benzeri AngularJS kutuları (kapsayıcıda dinleyen, gecikmeli yapıştıran, odakta
+  // bir sonraki turda select() eden yönerge): simgeye tıklandıktan sonra odak kısa sürede durmalı.
+  // ?nopaste sürümünde eklenti kutuları tek tek doldurur; sonsuz odak döngüsü bu yolda oluşuyordu.
+  for (const variant of ['', '?nopaste']) {
+    const label = variant ? 'yapıştırmasız portal' : 'Portal';
+    await page.send('Page.navigate', { url: `http://localhost:8765/test/fixtures/portal-auth-inputs.html${variant}` });
+    const portalIcon = await waitFor(() => page.evaluate(`(() => {
+      const boxes = document.querySelectorAll('input.auth-input');
+      if (boxes.length !== 6 || !document.querySelector('localvault-ui')) return null;
+      const r = boxes[5].getBoundingClientRect();
+      return { x: r.right + 8 + 9, y: r.top + r.height / 2 };
+    })()`), 10000, `${label} kutularının simgesi`);
+    await page.click(portalIcon.x, portalIcon.y);
+    const clickedAt = await page.evaluate(`Math.round(performance.now())`);
+    await new Promise((r) => setTimeout(r, 3000));
+    const portal = await page.evaluate(`({
+      value: [...document.querySelectorAll('input.auth-input')].map((b) => b.value).join(''),
+      focus: window.__focusLog,
+      digests: window.__digests,
+    })`);
+    const lateFocus = portal.focus.filter(([ms]) => ms > clickedAt + 1500).length;
+    check(`${label} kutularına simgeyle kod dolduruldu`, totpCodes().includes(portal.value), portal.value);
+    check(`${label} kutularında odak durdu (sürekli gezinme yok)`, lateFocus === 0 && portal.focus.length <= 15,
+      `toplam odak ${portal.focus.length}, son 1,5 sn'de ${lateFocus}, digest ${portal.digests}`);
+  }
+  await capture(page, 'page-portal-auth-inputs');
+
   const log = serverLog.filter((l) => /→/.test(l));
   check('İstekler imzalı yoldan geçti (get-logins, get-credentials)',
     log.some((l) => l.startsWith('get-logins') && l.endsWith('ok')) && log.some((l) => l.startsWith('get-credentials') && l.endsWith('ok')));

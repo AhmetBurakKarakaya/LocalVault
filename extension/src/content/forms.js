@@ -218,11 +218,15 @@ var LVForms = (() => {
     el.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
+  /** Sayfaya bir tur bırakır: bekleyen zamanlayıcılar (ör. AngularJS $timeout) önce çalışır. */
+  const nextTask = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
+
   /**
-   * Kodu doldurur. Çok kutulu formlarda önce yapıştırma olayı denenir (çoğu bileşen kodu kutulara
-   * kendisi dağıtır); işe yaramazsa kutular sırayla doldurulur.
+   * Kodu doldurur (çok kutulu formlarda eşzamansız). Önce yapıştırma olayı denenir: çoğu bileşen kodu
+   * kutulara kendisi dağıtır, bazıları (AngularJS) bunu bir sonraki turda yapar, bu yüzden sonucu kısa
+   * bir süre beklenir. İşe yaramazsa kutular sırayla, her kutudan sonra sayfaya tur bırakılarak doldurulur.
    */
-  function fillOtp(group, code) {
+  async function fillOtp(group, code) {
     if (group.kind === 'single') {
       setValue(group.inputs[0], code);
       // Bazı siteler kodu "123 456" biçiminde gösterir; yalnızca rakamları karşılaştır.
@@ -241,16 +245,24 @@ var LVForms = (() => {
     } catch {
       // DataTransfer desteklenmiyorsa doğrudan kutu kutu doldur.
     }
+    // Yapıştırmayı gecikmeli işleyen bileşenler için en fazla ~150 ms bekle. Beklemeden yedek yola
+    // geçmek kodu iki kez yazdırıyordu.
+    for (let waited = 0; !filled() && waited < 150; waited += 16) await nextTask(16);
     if (filled()) return true;
 
     // Kutuları yalnızca ileri yönde doldur. Çoğu bileşen bir rakam girilince odağı kendisi sonraki
     // kutuya taşır; odağı geri almak veya yapay tuş olayı göndermek bileşenle çakışıp imlecin kutular
-    // arasında ileri geri gezinmesine (ve hanelerin kaymasına) yol açar.
-    boxes.forEach((box, i) => {
-      if (box.value === code[i]) return;   // bileşen zaten doğru yazdıysa dokunma
+    // arasında ileri geri gezinmesine yol açar. Her kutudan sonra sayfaya tur bırakılır: odakta
+    // kutuyu bir sonraki turda select() eden bileşenlerde (select() odağı geri alır) kutular art arda
+    // aynı turda odaklanırsa bekleyen select() çağrıları odağı kutular arasında sonsuza dek paslıyordu.
+    for (let i = 0; i < boxes.length; i++) {
+      const box = boxes[i];
+      if (box.value === code[i]) continue;   // bileşen zaten doğru yazdıysa dokunma
       if (document.activeElement !== box) box.focus({ preventScroll: true });
       writeValue(box, code[i]);
-    });
+      await nextTask();
+    }
+    await nextTask();
     return filled();
   }
 

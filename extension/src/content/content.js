@@ -88,12 +88,12 @@
     return otpGroups.find((g) => g.inputs.includes(input)) ?? otpGroups[0] ?? null;
   }
 
-  function fillCode(group, code) {
+  async function fillCode(group, code) {
     if (!group) {
       LVUi.toast('Bu sayfada doğrulama kodu alanı bulunamadı.');
       return false;
     }
-    if (LVForms.fillOtp(group, code)) return true;
+    if (await LVForms.fillOtp(group, code)) return true;
     LVUi.toast(group.kind === 'segmented' && group.inputs.length !== code.length
       ? `Sayfa ${group.inputs.length} haneli kod bekliyor, kayıttaki kod ${code.length} haneli.`
       : 'Doğrulama kodu alana yazılamadı.');
@@ -154,7 +154,7 @@
       const result = LVForms.fillGroup(
         { ...group, username: group.username?.value ? null : group.username }, response.data);
       await request({ type: 'lv:filled', entryId: response.entryId, ...result });
-    } else if (fillCode(otpGroups[0], response.data.code)) {
+    } else if (await fillCode(otpGroups[0], response.data.code)) {
       LVUi.toast('LocalVault doğrulama kodunu doldurdu.', 3000);
     }
   }
@@ -324,8 +324,8 @@
           return false;
         }
         otpGroups = LVForms.findOtpGroups();
-        sendResponse({ filled: fillCode(otpGroups[0], message.code) });
-        return false;
+        fillCode(otpGroups[0], message.code).then((filled) => sendResponse({ filled }));
+        return true;   // yanıt eşzamansız gönderilir
       }
       case 'lv:showMenu': {
         groups = LVForms.findLoginGroups();
