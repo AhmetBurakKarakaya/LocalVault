@@ -13,6 +13,9 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         UpdateTitleBarHeight();
+        // macOS'ta kırmızı/sarı/yeşil pencere düğmeleri sol üsttedir; başlık onların sağından başlar.
+        if (OperatingSystem.IsMacOS())
+            TitleContent.Margin = new Thickness(80, 0, 16, 0);
 
         // Windows dışındaki platformlarda otomatik kilit, uygulama içi etkinliğe göre hesaplanır.
         AddHandler(KeyDownEvent, (_, _) => Idle?.ReportActivity(), RoutingStrategies.Tunnel, handledEventsToo: true);

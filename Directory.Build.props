@@ -1,7 +1,7 @@
 <Project>
   <!-- Tüm projeler için ortak sürüm ve ürün bilgisi (exe özelliklerinde görünür). -->
   <PropertyGroup>
-    <Version>0.6.0</Version>
+    <Version>0.7.0</Version>
     <Product>LocalVault</Product>
     <Company>LocalVault</Company>
     <Copyright>© 2026 Ahmet Karakaya</Copyright>

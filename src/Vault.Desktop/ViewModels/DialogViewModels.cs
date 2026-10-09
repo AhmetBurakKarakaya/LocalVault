@@ -137,6 +137,30 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] public partial bool AutoTypeEnabled { get; set; }
     [ObservableProperty] public partial string? ErrorMessage { get; set; }
 
+    /// <summary>Seçili Auto-Type kısayolu (kaydedilene kadar yalnızca bu pencerede).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HotkeyDisplay), nameof(IsDefaultHotkey))]
+    public partial HotkeyGesture AutoTypeHotkey { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HotkeyDisplay))]
+    public partial bool IsRecordingHotkey { get; set; }
+
+    /// <summary>Kayıt sırasında basılı tutulan değiştiriciler (ör. "Ctrl+Alt+…").</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HotkeyDisplay))]
+    public partial string? HotkeyPreview { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasHotkeyMessage))]
+    public partial string? HotkeyMessage { get; set; }
+
+    [ObservableProperty] public partial bool HotkeyMessageIsError { get; set; }
+
+    public string HotkeyDisplay => IsRecordingHotkey ? HotkeyPreview ?? "Kısayola basın…" : AutoTypeHotkey.ToString();
+    public bool IsDefaultHotkey => AutoTypeHotkey == HotkeyGesture.Default;
+    public bool HasHotkeyMessage => HotkeyMessage is not null;
+
     /// <summary>Kasayla eşleştirilmiş tarayıcı eklentileri.</summary>
     public ObservableCollection<BrowserAssociationItem> Associations { get; } = [];
     public bool HasAssociations => Associations.Count > 0;
@@ -161,6 +185,8 @@ public sealed partial class SettingsViewModel : ViewModelBase
         StartMinimized = s.StartMinimized;
         BrowserIntegrationEnabled = s.BrowserIntegrationEnabled;
         AutoTypeEnabled = s.AutoTypeEnabled;
+        AutoTypeHotkey = HotkeyGesture.FromSettings(s.AutoTypeHotkey);
+        ShowHotkeyWarning();
 
         if (services.Vault.IsUnlocked)
         {
@@ -195,10 +221,92 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string VaultPath => _services.Settings.EffectiveVaultPath;
     public string SettingsPath => _services.SettingsStore.FilePath;
 
+    // ---- Kısayol kaydetme ----
+
+    public void BeginHotkeyRecording()
+    {
+        if (IsRecordingHotkey)
+            return;
+        _services.AutoType?.Suspend();
+        IsRecordingHotkey = true;
+        HotkeyPreview = null;
+        HotkeyMessage = "Yeni tuş birleşimine basın · Esc: vazgeç";
+        HotkeyMessageIsError = false;
+    }
+
+    public void CancelHotkeyRecording()
+    {
+        if (!IsRecordingHotkey)
+            return;
+        EndRecording();
+        ShowHotkeyWarning();
+    }
+
+    /// <summary>Kayıt sırasında basılan tuşu işler. Birleşim tamamlandıysa (geçerli ya da değil) true döner.</summary>
+    public bool RecordHotkeyKey(HotkeyModifiers modifiers, string? key)
+    {
+        if (!IsRecordingHotkey)
+            return false;
+        if (HotkeyGesture.NormalizeKey(key) is not { } normalized)
+        {
+            // Yalnızca değiştirici basılı (veya desteklenmeyen tuş): önizlemeyi güncelle, beklemeye devam et.
+            HotkeyPreview = modifiers == HotkeyModifiers.None ? null : $"{new HotkeyGesture(modifiers, "…")}";
+            return false;
+        }
+
+        var gesture = new HotkeyGesture(modifiers, normalized);
+        if (gesture.Validate() is { } problem)
+        {
+            HotkeyPreview = null;
+            HotkeyMessage = $"{gesture}: {problem}";
+            HotkeyMessageIsError = true;
+            return true;   // kayıt sürer; kullanıcı başka bir birleşim dener
+        }
+
+        EndRecording();
+        AutoTypeHotkey = gesture;
+        ShowHotkeyWarning();
+        return true;
+    }
+
+    [RelayCommand]
+    private void ResetHotkey()
+    {
+        if (IsRecordingHotkey)
+            EndRecording();
+        AutoTypeHotkey = HotkeyGesture.Default;
+        ShowHotkeyWarning();
+    }
+
+    private void EndRecording()
+    {
+        IsRecordingHotkey = false;
+        HotkeyPreview = null;
+        _services.AutoType?.Resume();
+    }
+
+    private void ShowHotkeyWarning()
+    {
+        HotkeyMessage = AutoTypeHotkey.Warning();
+        HotkeyMessageIsError = false;
+    }
+
     [RelayCommand]
     private void Save()
     {
+        CancelHotkeyRecording();
         var s = _services.Settings;
+        var hotkeyText = AutoTypeHotkey.ToString();
+        // Şu an bizim kaydettiğimiz kısayol zaten kullanılabilir; yalnızca yeni bir birleşimi dene.
+        var active = _services.AutoType is { IsRunning: true } autoType ? autoType.Hotkey : null;
+        if (AutoTypeEnabled && _services.AutoType is not null && AutoTypeHotkey != active
+            && !AutoTypeService.CanRegister(AutoTypeHotkey))
+        {
+            HotkeyMessage = $"{hotkeyText} başka bir uygulama tarafından kullanılıyor; başka bir birleşim seçin.";
+            HotkeyMessageIsError = true;
+            return;
+        }
+
         s.AutoLockMinutes = AutoLock.Value;
         s.ClipboardClearSeconds = ClipboardClear.Value;
         s.Theme = Theme.Value;
@@ -208,6 +316,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
         s.StartMinimized = StartMinimized;
         s.BrowserIntegrationEnabled = BrowserIntegrationEnabled;
         s.AutoTypeEnabled = AutoTypeEnabled;
+        s.AutoTypeHotkey = hotkeyText;
         try
         {
             _services.SettingsStore.Save();
@@ -223,7 +332,11 @@ public sealed partial class SettingsViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void Cancel() => _onClose();
+    private void Cancel()
+    {
+        CancelHotkeyRecording();
+        _onClose();
+    }
 
     private static Option<int> Closest(IReadOnlyList<Option<int>> options, int value) =>
         options.MinBy(o => Math.Abs(o.Value - value))!;

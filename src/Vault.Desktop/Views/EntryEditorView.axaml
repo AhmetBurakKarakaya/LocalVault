@@ -5,9 +5,6 @@
              xmlns:services="using:Vault.Desktop.Services"
              x:Class="Vault.Desktop.Views.EntryEditorView"
              x:DataType="vm:EntryEditorViewModel">
-    <UserControl.KeyBindings>
-        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
-    </UserControl.KeyBindings>
 
     <Grid RowDefinitions="Auto,*,Auto">
         <TextBlock Classes="h1" Text="{Binding Heading}" Margin="32,24,32,12" />
@@ -146,7 +143,7 @@
                             <TextBox Text="{Binding AutoTypeWindowsText}" AcceptsReturn="True" MinHeight="56"
                                      PlaceholderText="*Uzak Masaüstü*  (her satıra bir desen; * ve ? kullanılabilir)" />
                             <TextBlock Classes="caption" Margin="0,4,0,0" TextWrapping="Wrap"
-                                       Text="Bu pencerelerden biri öndeyken Ctrl+Alt+A'ya basınca kullanıcı adı ve parola yazılır." />
+                                       Text="{Binding AutoTypeHint}" />
                         </StackPanel>
                         <StackPanel>
                             <TextBlock Classes="label" Text="Tuş dizisi" />

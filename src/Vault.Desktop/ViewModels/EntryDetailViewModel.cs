@@ -72,6 +72,7 @@ public sealed partial class EntryDetailViewModel : ViewModelBase
     public bool HasTags => Entry.Tags.Count > 0;
     public bool HasAutoType => Entry.AutoTypeWindows.Count > 0;
     public string AutoTypeText => string.Join(", ", Entry.AutoTypeWindows);
+    public string AutoTypeLabel => $"Auto-Type ({HotkeyGesture.FromSettings(_services.Settings.AutoTypeHotkey)})";
     public string AutoTypeSequence => Entry.AutoTypeSequence ?? Vault.Core.AutoType.AutoTypeSequence.Default;
     /// <summary>Başlığın altındaki kısa bilgi: ilk web sitesinin alan adı.</summary>
     public string Subtitle => Entry.Urls.Select(HostOf).FirstOrDefault(h => h.Length > 0) ?? "";

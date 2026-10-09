@@ -8,7 +8,11 @@ otomatik doldurur.
 
 ## Kurulum
 
-1. `LocalVault-0.5.0-win-x64.zip` dosyasını çıkarın ve **`install.cmd`**'ye çift tıklayın.
+Paketler [Sürümler](https://github.com/AhmetBurakKarakaya/LocalVault/releases) sayfasındadır.
+
+### Windows
+
+1. `LocalVault-<sürüm>-win-x64.zip` dosyasını çıkarın ve **`install.cmd`**'ye çift tıklayın.
    Yönetici yetkisi gerekmez; .NET kurulu olması gerekmez (çalışma zamanı pakete dahildir).
 2. LocalVault açılır; ilk açılışta ana parolanızı belirleyip kasanızı oluşturun.
 3. Tarayıcı eklentisini yükleyin (ayrıntılar aşağıda ve paketteki `KURULUM.txt` dosyasında):
@@ -24,13 +28,32 @@ hiçbir zaman dokunulmaz. Güncelleme için yeni sürümün `install.cmd`'sini �
 İsteğe bağlı seçenekler: `install.ps1 -AutoStart` (Windows açılışında başlat), `-AddToPath`
 (`localvault-cli` komutunu PATH'e ekle), `-InstallDir <klasör>`.
 
+### macOS (14 Sonoma ve üzeri)
+
+1. Apple Silicon için `LocalVault-<sürüm>-osx-arm64.dmg`, Intel için `…-osx-x64.dmg` dosyasını açın ve
+   LocalVault'u **Uygulamalar** klasörüne sürükleyin.
+2. Uygulama Apple Developer ID ile imzalanmadığı için ilk açılışta macOS engeller: bir kez açmayı deneyin,
+   ardından **Sistem Ayarları → Gizlilik ve Güvenlik → Yine de Aç**. (Ya da
+   `xattr -dr com.apple.quarantine /Applications/LocalVault.app`.)
+3. LocalVault açılışta Chrome/Edge/Firefox bağlantısını kendisi kaydeder. Eklenti klasörleri DMG'nin içindedir;
+   ayrıntılar DMG'deki `KURULUM.txt` dosyasında.
+
+Kasa `~/Library/Application Support/LocalVault/vault.json` konumundadır; Windows'taki `vault.json` buraya
+kopyalanıp aynı ana parolayla açılabilir. Kısayollar Ctrl yerine Cmd ile çalışır. Mac sürümünde henüz
+Auto-Type, ekrandan/panodan QR tarama ve Safari eklentisi yoktur.
+
 ### Paketi oluşturma
 
 ```bash
 pwsh build/package.ps1            # testler + yayın → artifacts/LocalVault-<sürüm>-win-x64.zip (+ .sha256)
 pwsh build/package.ps1 -SkipTests
 pwsh build/package.ps1 -Runtime win-arm64
+build/macos/package-mac.sh osx-arm64   # yalnızca macOS'ta: → artifacts/LocalVault-<sürüm>-osx-arm64.dmg
+build/macos/package-mac.sh osx-x64 --skip-tests
 ```
+
+GitHub Actions (`.github/workflows/build.yml`) her gönderimde Windows ve macOS'ta testleri çalıştırıp
+üç paketi de üretir; `v*` etiketi gönderildiğinde paketleri ilgili GitHub sürümüne ekler.
 
 Sürüm numarası `Directory.Build.props` dosyasındadır. Uygulama dijital olarak imzalanmadığı için
 indirilen paket SmartScreen uyarısı verebilir.
@@ -147,6 +170,9 @@ Eklenti ──(native messaging, stdin/stdout)──► LocalVault.NativeHost.ex
 
 Tarayıcı dışındaki uygulamalar (Uzak Masaüstü, VPN istemcisi, PuTTY, kurumsal uygulamalar) için:
 **Ctrl+Alt+A** önde olan pencerenin başlığına göre kaydı bulur ve kullanıcı adı/parolayı klavye girdisi olarak yazar.
+Kısayol **Ayarlar → Auto-Type → Kısayol** kutusundan değiştirilebilir (kutuya tıklayıp yeni birleşime basın;
+Ctrl, Alt veya Win içermeli). Türkçe klavyede AltGr ile yazılan karakterleri (ör. `Ctrl+Alt+Q` → `@`)
+engelleyecek birleşimler için uyarı gösterilir; başka bir uygulamanın kullandığı kısayol kaydedilmez.
 
 - Kayıt düzenleyicide *Auto-Type* bölümüne pencere başlığı desenleri yazılır (her satıra bir desen;
   `*` ve `?` joker; jokersiz desen başlığın içinde geçiyorsa eşleşir), ör. `*Uzak Masaüstü*`.

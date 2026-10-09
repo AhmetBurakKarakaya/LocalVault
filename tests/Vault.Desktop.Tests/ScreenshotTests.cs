@@ -4,6 +4,7 @@ using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Vault.Desktop.ViewModels;
 using Vault.Desktop.Views;
 
@@ -121,6 +122,17 @@ public sealed class ScreenshotTests : IDisposable
         });
         vault.OpenSettingsCommand.Execute(null);
         Capture(window, theme, "13-settings-browsers");
+
+        // Auto-Type kısayolu kaydedilirken (Ctrl+Alt basılı) ve AltGr uyarısıyla
+        var settingsVm = (SettingsViewModel)vault.Overlay!;
+        settingsVm.AutoTypeHotkey = Vault.Desktop.Services.HotkeyGesture.TryParse("Ctrl+Alt+Q")!;
+        Dispatcher.UIThread.RunJobs();
+        window.GetVisualDescendants().OfType<Button>().Single(b => b.Name == "HotkeyBox").BringIntoView();
+        Capture(window, theme, "16-settings-hotkey");
+        settingsVm.BeginHotkeyRecording();
+        settingsVm.RecordHotkeyKey(Vault.Desktop.Services.HotkeyModifiers.Ctrl | Vault.Desktop.Services.HotkeyModifiers.Alt, "LeftAlt");
+        Capture(window, theme, "17-settings-hotkey-recording");
+        settingsVm.CancelHotkeyRecording();
 
         // Faz 5: Auto-Type seçimi ve içe aktarma önizlemesi
         vault.CloseOverlayCommand.Execute(null);

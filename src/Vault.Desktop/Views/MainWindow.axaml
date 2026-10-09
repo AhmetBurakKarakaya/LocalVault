@@ -14,7 +14,7 @@
         <!-- Başlık çubuğu: içerik alanına genişletilmiş (Windows 11 tarzı); sağdaki düğmeleri sistem çizer -->
         <Border x:Name="TitleBar" Height="40" Background="Transparent"
                 WindowDecorationProperties.ElementRole="TitleBar">
-            <StackPanel Orientation="Horizontal" Spacing="10" Margin="16,0" VerticalAlignment="Center"
+            <StackPanel x:Name="TitleContent" Orientation="Horizontal" Spacing="10" Margin="16,0" VerticalAlignment="Center"
                         IsHitTestVisible="False">
                 <Image Source="/Assets/icon.png" Width="16" Height="16" />
                 <TextBlock Text="LocalVault" FontSize="12" VerticalAlignment="Center" />

@@ -167,6 +167,8 @@ public sealed partial class VaultViewModel : ViewModelBase, IDisposable
     public string CountText => Items.Count == Data.Entries.Count || ActiveFilter != Categories[0] && string.IsNullOrWhiteSpace(SearchText)
         ? $"{Items.Count} kayıt"
         : $"{Items.Count} / {Data.Entries.Count} kayıt";
+    /// <summary>Ekrandaki/panodaki görüntüden QR okuma yalnızca Windows'ta var (dosyadan okuma her yerde).</summary>
+    public bool CanScanScreen => OperatingSystem.IsWindows();
     public string VaultName => Path.GetFileName(_services.Vault.Session.FilePath);
 
     partial void OnSearchTextChanged(string value) => Refresh(SelectedItem?.Entry.Id);
@@ -238,7 +240,10 @@ public sealed partial class VaultViewModel : ViewModelBase, IDisposable
         onRequestGenerator: editor => Overlay = new PasswordGeneratorViewModel(
             _services.Clipboard, onUse: password => editor.Password = password, onClose: CloseOverlay, notify: ShowStatus),
         scanQr: _qr.ScanAsync,
-        onMultipleAccounts: ShowQrImport);
+        onMultipleAccounts: ShowQrImport)
+    {
+        AutoTypeHotkey = HotkeyGesture.FromSettings(_services.Settings.AutoTypeHotkey).ToString(),
+    };
 
     private bool SaveEditor(EntryEditorViewModel editor)
     {

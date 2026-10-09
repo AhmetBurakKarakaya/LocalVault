@@ -31,6 +31,7 @@ TARAYICI EKLENTİSİ
 KISAYOLLAR
   Tarayıcıda   Ctrl+Shift+L   Bu sayfadaki hesabı / doğrulama kodunu doldur
   Masaüstünde  Ctrl+Alt+A     Öndeki pencereye kullanıcı adı ve parolayı yaz (Auto-Type)
+                              (kısayol Ayarlar > Auto-Type bölümünden değiştirilebilir)
 
 GÜNCELLEME
   Yeni sürümün install.cmd dosyasını çalıştırın; kasanız ve ayarlarınız korunur.

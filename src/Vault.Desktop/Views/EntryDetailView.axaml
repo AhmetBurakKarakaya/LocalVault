@@ -144,7 +144,7 @@
 
             <!-- Auto-Type -->
             <StackPanel IsVisible="{Binding HasAutoType}">
-                <TextBlock Classes="label" Text="Auto-Type (Ctrl+Alt+A)" Margin="2,14,0,8" />
+                <TextBlock Classes="label" Text="{Binding AutoTypeLabel}" Margin="2,14,0,8" />
                 <Border Classes="card row">
                     <Grid ColumnDefinitions="Auto,*">
                         <PathIcon Classes="lead" Data="{StaticResource IconKeyboard}" />

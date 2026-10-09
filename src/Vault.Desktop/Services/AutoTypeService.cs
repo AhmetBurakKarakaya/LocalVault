@@ -20,22 +20,30 @@ public interface IAutoTypeUi
 }
 
 /// <summary>
-/// Ctrl+Alt+A: önde olan pencerenin başlığına göre kaydı bulur ve kullanıcı adı/parolayı klavye
-/// girdisi olarak yazar (RDP, VPN istemcisi, masaüstü uygulamaları için).
+/// Genel kısayol (varsayılan Ctrl+Alt+A, ayarlardan değiştirilebilir): önde olan pencerenin başlığına
+/// göre kaydı bulur ve kullanıcı adı/parolayı klavye girdisi olarak yazar (RDP, VPN istemcisi, masaüstü uygulamaları için).
 /// </summary>
 /// Win32 çağrıları yalnızca Windows'ta yapılır; diğer platformlarda Start() hiçbir şey yapmaz.
 public sealed class AutoTypeService(VaultService vault, IAutoTypeUi ui) : IDisposable
 {
-    public const string HotkeyText = "Ctrl+Alt+A";
-
     private GlobalHotkey? _hotkey;
     private bool _busy;
+    private bool _suspended;
 
     public bool IsRunning => _hotkey is not null;
     public string Status { get; private set; } = "Kapalı";
 
-    public void Start()
+    /// <summary>Kullanılan (veya bir sonraki Start'ta kullanılacak) kısayol.</summary>
+    public HotkeyGesture Hotkey { get; private set; } = HotkeyGesture.Default;
+    private string HotkeyText => Hotkey.ToString();
+
+    public void Start(HotkeyGesture? hotkey = null)
     {
+        if (hotkey is not null && hotkey != Hotkey)
+        {
+            Stop();
+            Hotkey = hotkey;
+        }
         if (!OperatingSystem.IsWindows())
         {
             Status = "Auto-Type yalnızca Windows'ta kullanılabilir.";
@@ -43,24 +51,56 @@ public sealed class AutoTypeService(VaultService vault, IAutoTypeUi ui) : IDispo
         }
         if (_hotkey is not null)
             return;
-        var hotkey = new GlobalHotkey(GlobalHotkey.ModControl | GlobalHotkey.ModAlt, 'A');
-        if (!hotkey.IsRegistered)
+        var registered = new GlobalHotkey(Hotkey.Win32Modifiers, Hotkey.Win32VirtualKey);
+        if (!registered.IsRegistered)
         {
-            hotkey.Dispose();
-            Status = $"{HotkeyText} başka bir uygulama tarafından kullanılıyor; Auto-Type etkinleştirilemedi.";
+            registered.Dispose();
+            Status = $"{HotkeyText} başka bir uygulama tarafından kullanılıyor; Ayarlar'dan başka bir kısayol seçin.";
             return;
         }
-        hotkey.Pressed += () => Dispatcher.UIThread.Post(() => _ = RunAsync());
-        _hotkey = hotkey;
+        registered.Pressed += () => Dispatcher.UIThread.Post(() => _ = RunAsync());
+        _hotkey = registered;
         Status = $"Açık — kısayol: {HotkeyText}";
     }
 
     public void Stop()
     {
+        _suspended = false;
         if (OperatingSystem.IsWindows())
             _hotkey?.Dispose();
         _hotkey = null;
         Status = "Kapalı";
+    }
+
+    /// <summary>
+    /// Kısayol kaydedilirken geçici olarak bırakılır; yoksa mevcut kısayola basmak tuşu kayıt kutusuna
+    /// ulaştırmaz (Windows onu doğrudan bize kısayol olarak iletir).
+    /// </summary>
+    public void Suspend()
+    {
+        if (_hotkey is null)
+            return;
+        Stop();
+        _suspended = true;
+    }
+
+    public void Resume()
+    {
+        if (!_suspended)
+            return;
+        _suspended = false;
+        Start();
+    }
+
+    /// <summary>Kısayolun bu bilgisayarda kaydedilebildiğini dener (başka uygulama kullanıyor mu?).</summary>
+    public static bool CanRegister(HotkeyGesture hotkey)
+    {
+        if (!OperatingSystem.IsWindows())
+            return true;
+        var probe = new GlobalHotkey(hotkey.Win32Modifiers, hotkey.Win32VirtualKey);
+        var ok = probe.IsRegistered;
+        probe.Dispose();
+        return ok;
     }
 
     /// <summary>Kısayola basıldığında (UI iş parçacığında) çalışır.</summary>

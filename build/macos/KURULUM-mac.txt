@@ -1,0 +1,57 @@
+LocalVault — macOS kurulumu
+===========================
+
+Gereksinim: macOS 14 (Sonoma) veya üzeri.
+  Apple Silicon (M1, M2, M3, M4…) için  LocalVault-<sürüm>-osx-arm64.dmg
+  Intel işlemcili Mac için               LocalVault-<sürüm>-osx-x64.dmg
+
+KURULUM
+  1. DMG dosyasını açın, LocalVault simgesini "Applications" (Uygulamalar) klasörüne sürükleyin.
+     Uygulamayı DMG'nin içinden çalıştırmayın; tarayıcı kaydı uygulamanın bulunduğu yere yapılır.
+  2. İlk açılış: uygulama Apple tarafından imzalanmadığı için macOS açmayı engeller.
+     a) Uygulamalar klasöründe LocalVault'a çift tıklayın, çıkan uyarıyı kapatın.
+     b) Sistem Ayarları → Gizlilik ve Güvenlik → en altta "LocalVault engellendi" → "Yine de Aç".
+     Ya da Terminal'de tek komutla:
+        xattr -dr com.apple.quarantine /Applications/LocalVault.app
+  3. LocalVault açılır. İlk açılışta ana parolanızı belirleyip kasanızı oluşturun.
+     Uygulama açılırken Chrome, Edge ve Firefox için tarayıcı bağlantısını kendisi kaydeder.
+
+  Kasa dosyası : ~/Library/Application Support/LocalVault/vault.json
+  Windows'tan taşımak için vault.json dosyasını bu klasöre kopyalayın (aynı ana parolayla açılır).
+
+TARAYICI EKLENTİSİ
+  Önce DMG'deki eklenti klasörlerini kalıcı bir yere kopyalayın (ör. Belgeler/LocalVault).
+  Chrome / Edge
+    1. chrome://extensions (Edge: edge://extensions) sayfasını açın.
+    2. "Geliştirici modu"nu açın.
+    3. "Paketlenmemiş öğe yükle" → kopyaladığınız "Eklenti - Chrome ve Edge" klasörü
+  Firefox
+    about:debugging#/runtime/this-firefox → "Geçici eklenti yükle" →
+    "Eklenti - Firefox/manifest.json"
+    (İmzasız eklentiler Firefox kapanınca kaldırılır.)
+
+  Sonra eklenti simgesi → "Bağlan". LocalVault penceresinde açılan istekteki kodun
+  eklentidekiyle aynı olduğunu kontrol edip "İzin ver"e tıklayın.
+
+KISAYOLLAR
+  Tarayıcıda   Cmd+Shift+L   Bu sayfadaki hesabı / doğrulama kodunu doldur
+  Uygulamada   Cmd+F ara · Cmd+N yeni kayıt · Cmd+B kullanıcı adı · Cmd+C parola ·
+               Cmd+T doğrulama kodu · Cmd+L kilitle
+
+MAC SÜRÜMÜNDE HENÜZ OLMAYANLAR
+  - Auto-Type (masaüstü uygulamalarına kısayolla kullanıcı adı/parola yazma)
+  - Ekrandan veya panodan QR kodu tarama (QR görüntü dosyasından içe aktarma çalışır)
+  - Otomatik kilit yalnızca LocalVault penceresindeki etkinliğe göre çalışır
+  - Safari eklentisi
+
+GÜNCELLEME
+  Yeni DMG'deki LocalVault'u Uygulamalar klasörüne sürükleyip "Değiştir"i seçin.
+  Kasanız ve ayarlarınız korunur. Gerekirse 2. adımdaki ilk açılış onayını tekrarlayın.
+
+KALDIRMA
+  1. LocalVault'u çalışıyorsa menü çubuğundaki simgeden "Çıkış" ile kapatın.
+  2. Tarayıcı kaydını kaldırın (Terminal):
+       /Applications/LocalVault.app/Contents/MacOS/LocalVault.NativeHost --unregister
+  3. Uygulamalar klasöründeki LocalVault'u Çöp Sepeti'ne taşıyın.
+  Kasa dosyanız silinmez; tamamen temizlemek için
+  ~/Library/Application Support/LocalVault klasörünü elle silin.

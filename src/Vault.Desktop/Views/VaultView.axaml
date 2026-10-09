@@ -5,17 +5,8 @@
              xmlns:services="using:Vault.Desktop.Services"
              x:Class="Vault.Desktop.Views.VaultView"
              x:DataType="vm:VaultViewModel">
-    <UserControl.KeyBindings>
-        <KeyBinding Gesture="Ctrl+N" Command="{Binding NewEntryCommand}" />
-        <KeyBinding Gesture="Ctrl+E" Command="{Binding EditEntryCommand}" />
-        <KeyBinding Gesture="Ctrl+L" Command="{Binding LockCommand}" />
-        <KeyBinding Gesture="Ctrl+G" Command="{Binding OpenGeneratorCommand}" />
-        <KeyBinding Gesture="Ctrl+B" Command="{Binding CopyUsernameCommand}" />
-        <KeyBinding Gesture="Ctrl+C" Command="{Binding CopyPasswordCommand}" />
-        <KeyBinding Gesture="Ctrl+T" Command="{Binding CopyTotpCommand}" />
-        <KeyBinding Gesture="Escape" Command="{Binding EscapeCommand}" />
-        <KeyBinding Gesture="Delete" Command="{Binding DeleteEntryCommand}" />
-    </UserControl.KeyBindings>
+    <!-- Klavye kısayolları VaultView.axaml.cs'de: KeyBinding'ler odaktaki metin kutusundan önce çalışıp
+         Delete/Ctrl+C gibi metin düzenleme tuşlarını ele geçiriyordu. -->
 
     <UserControl.DataTemplates>
         <DataTemplate DataType="vm:NavItemViewModel">
@@ -72,9 +63,9 @@
                                 </MenuItem>
                                 <MenuItem Header="QR kodundan hesap ekle">
                                     <MenuItem.Icon><PathIcon Data="{StaticResource IconQr}" /></MenuItem.Icon>
-                                    <MenuItem Header="Ekrandaki QR kodunu tara"
+                                    <MenuItem Header="Ekrandaki QR kodunu tara" IsVisible="{Binding CanScanScreen}"
                                               Command="{Binding ImportQrCommand}" CommandParameter="{x:Static services:QrSource.Screen}" />
-                                    <MenuItem Header="Panodaki görüntüden (Win+Shift+S)"
+                                    <MenuItem Header="Panodaki görüntüden (Win+Shift+S)" IsVisible="{Binding CanScanScreen}"
                                               Command="{Binding ImportQrCommand}" CommandParameter="{x:Static services:QrSource.Clipboard}" />
                                     <MenuItem Header="Görüntü dosyasından…"
                                               Command="{Binding ImportQrCommand}" CommandParameter="{x:Static services:QrSource.File}" />

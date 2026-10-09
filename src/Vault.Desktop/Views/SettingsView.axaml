@@ -68,10 +68,34 @@
                     <Border Classes="setting" IsVisible="{Binding AutoTypeSupported}">
                         <Grid Classes="setting" ColumnDefinitions="*,Auto">
                             <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
-                                <TextBlock Text="Ctrl+Alt+A ile etkin pencereye kullanıcı adı ve parola yaz" TextWrapping="Wrap" />
+                                <TextBlock Text="Kısayolla etkin pencereye kullanıcı adı ve parola yaz" TextWrapping="Wrap" />
                                 <TextBlock Classes="caption" Text="{Binding AutoTypeStatus}" TextWrapping="Wrap" />
                             </StackPanel>
                             <ToggleSwitch IsChecked="{Binding AutoTypeEnabled}" />
+                        </Grid>
+                    </Border>
+                    <Border Classes="setting" IsVisible="{Binding AutoTypeSupported}">
+                        <Grid ColumnDefinitions="*,Auto,Auto" MinHeight="40">
+                            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                                <TextBlock Text="Kısayol" />
+                                <TextBlock Classes="caption" TextWrapping="Wrap"
+                                           Text="Değiştirmek için kutuya tıklayıp yeni tuş birleşimine basın." />
+                                <TextBlock x:Name="HotkeyMessageText" Classes="caption" TextWrapping="Wrap" Margin="0,4,0,0"
+                                           Text="{Binding HotkeyMessage}" IsVisible="{Binding HasHotkeyMessage}"
+                                           Classes.error="{Binding HotkeyMessageIsError}" />
+                            </StackPanel>
+                            <Button x:Name="HotkeyBox" Grid.Column="1" Classes="hotkey" MinWidth="150"
+                                    HorizontalContentAlignment="Center" VerticalAlignment="Center"
+                                    Classes.recording="{Binding IsRecordingHotkey}"
+                                    AutomationProperties.Name="Auto-Type kısayolu"
+                                    Click="OnHotkeyBoxClick" LostFocus="OnHotkeyBoxLostFocus">
+                                <TextBlock Classes="mono" Text="{Binding HotkeyDisplay}" />
+                            </Button>
+                            <Button Grid.Column="2" Classes="icon" Margin="4,0,0,0" VerticalAlignment="Center"
+                                    ToolTip.Tip="Varsayılana dön (Ctrl+Alt+A)" IsVisible="{Binding !IsDefaultHotkey}"
+                                    Command="{Binding ResetHotkeyCommand}">
+                                <PathIcon Data="{StaticResource IconRefresh}" />
+                            </Button>
                         </Grid>
                     </Border>
 
@@ -137,6 +161,16 @@
     </Border>
 
     <UserControl.Styles>
+        <Style Selector="Button.hotkey.recording">
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+        </Style>
+        <Style Selector="Button.hotkey.recording /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+        <Style Selector="TextBlock#HotkeyMessageText.error">
+            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+        </Style>
         <Style Selector="TextBlock.group">
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Margin" Value="2,14,0,6" />

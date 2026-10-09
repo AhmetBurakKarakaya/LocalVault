@@ -59,7 +59,7 @@ public partial class App : Application, IBridgeUi, IAutoTypeUi
         if (settingsStore.Current.BrowserIntegrationEnabled)
             _services.Browser.Start();
         if (settingsStore.Current.AutoTypeEnabled)
-            _services.AutoType.Start();
+            _services.AutoType.Start(HotkeyGesture.FromSettings(settingsStore.Current.AutoTypeHotkey));
 
         _window.DataContext = new MainWindowViewModel(_services);
         _window.Closing += OnWindowClosing;
@@ -80,6 +80,13 @@ public partial class App : Application, IBridgeUi, IAutoTypeUi
         };
         _services.Vault.Unlocked += (_, _) => UpdateTrayMenu();
         CreateTrayIcon();
+        // macOS: pencere gizliyken (tepside) Dock simgesine tıklanınca yeniden göster.
+        if (TryGetFeature(typeof(IActivatableLifetime)) is IActivatableLifetime activatable)
+            activatable.Activated += (_, e) =>
+            {
+                if (e.Kind == ActivationKind.Reopen)
+                    ShowMainWindow();
+            };
 
         Program.Instance?.ListenForShowRequests(() => Dispatcher.UIThread.Post(ShowMainWindow));
         desktop.Exit += (_, _) => Cleanup();
@@ -94,9 +101,9 @@ public partial class App : Application, IBridgeUi, IAutoTypeUi
         ApplyTheme(settings);
         if (_services?.AutoType is { } autoType)
         {
-            if (settings.AutoTypeEnabled && !autoType.IsRunning)
-                autoType.Start();
-            else if (!settings.AutoTypeEnabled && autoType.IsRunning)
+            if (settings.AutoTypeEnabled)
+                autoType.Start(HotkeyGesture.FromSettings(settings.AutoTypeHotkey));   // kısayol değiştiyse yeniden kaydeder
+            else if (autoType.IsRunning)
                 autoType.Stop();
         }
         if (_services?.Browser is not { } browser)

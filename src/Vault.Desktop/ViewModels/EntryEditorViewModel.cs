@@ -63,6 +63,10 @@ public sealed partial class EntryEditorViewModel : ViewModelBase
     [ObservableProperty] public partial bool IsScanning { get; set; }
 
     public string DefaultAutoTypeSequence => Vault.Core.AutoType.AutoTypeSequence.Default;
+
+    /// <summary>Ayarlardaki Auto-Type kısayolu (açıklama metni için).</summary>
+    public string AutoTypeHotkey { get; init; } = HotkeyGesture.DefaultText;
+    public string AutoTypeHint => $"Bu pencerelerden biri öndeyken {AutoTypeHotkey} tuşlarına basınca kullanıcı adı ve parola yazılır.";
     public bool CanScanScreen => OperatingSystem.IsWindows();
 
     public EntryEditorViewModel(

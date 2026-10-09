@@ -26,8 +26,10 @@ public sealed class AppSettings
     public AppTheme Theme { get; set; } = AppTheme.System;
     /// <summary>Tarayıcı eklentisinin native host üzerinden bağlanmasına izin ver.</summary>
     public bool BrowserIntegrationEnabled { get; set; } = true;
-    /// <summary>Ctrl+Alt+A ile etkin pencereye kullanıcı adı/parola yazma (yalnızca Windows).</summary>
+    /// <summary>Kısayolla etkin pencereye kullanıcı adı/parola yazma (yalnızca Windows).</summary>
     public bool AutoTypeEnabled { get; set; } = true;
+    /// <summary>Auto-Type kısayolu, ör. "Ctrl+Alt+A" (bkz. <see cref="HotkeyGesture"/>).</summary>
+    public string AutoTypeHotkey { get; set; } = HotkeyGesture.DefaultText;
 
     [JsonIgnore]
     public string EffectiveVaultPath => string.IsNullOrWhiteSpace(VaultPath) ? VaultPaths.DefaultVaultPath : VaultPath;
@@ -45,11 +47,11 @@ public sealed class SettingsStore(string filePath)
     public string FilePath { get; } = filePath;
     public AppSettings Current { get; private set; } = new();
 
-    /// <summary>LOCALVAULT_SETTINGS ortam değişkeni (yalıtılmış deneme/geliştirme örnekleri için), yoksa %APPDATA%.</summary>
+    /// <summary>LOCALVAULT_SETTINGS ortam değişkeni (yalıtılmış deneme/geliştirme örnekleri için), yoksa kasa klasörü.</summary>
     public static string DefaultFilePath =>
         Environment.GetEnvironmentVariable("LOCALVAULT_SETTINGS") is { Length: > 0 } fromEnv
             ? fromEnv
-            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LocalVault", "settings.json");
+            : Path.Combine(VaultPaths.DataDirectory, "settings.json");
 
     public static SettingsStore Load(string? filePath = null)
     {

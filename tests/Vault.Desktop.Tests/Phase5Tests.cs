@@ -343,6 +343,7 @@ public class GlobalHotkeyTests
     [Fact]
     public void RegistersAndDetectsConflicts()
     {
+        Assert.SkipUnless(OperatingSystem.IsWindows(), "Yalnızca Windows");
         // Alışılmadık bir kombinasyon (Ctrl+Alt+Shift+F11): tuş gönderilmez, yalnızca kayıt denenir.
         const uint mods = GlobalHotkey.ModControl | GlobalHotkey.ModAlt | GlobalHotkey.ModShift;
         using var first = new GlobalHotkey(mods, 0x7A);

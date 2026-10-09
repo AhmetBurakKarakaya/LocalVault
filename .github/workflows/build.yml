@@ -1,0 +1,97 @@
+# Testler + kurulum paketleri. Her gönderimde çalışır; "v*" etiketinde paketler GitHub sürümüne eklenir.
+name: Derleme ve paketleme
+
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Windows paketi
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Testler ve paket
+        shell: pwsh
+        run: ./build/package.ps1
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows-x64
+          path: |
+            artifacts/*.zip
+            artifacts/*.zip.sha256
+          if-no-files-found: error
+
+  macos:
+    name: macOS paketi (${{ matrix.rid }})
+    # Apple Silicon makine; Intel paketi buradan çapraz yayımlanır (imza ve DMG yine yerelde yapılır).
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: osx-arm64
+            args: ''
+          - rid: osx-x64
+            args: '--skip-tests'   # testler arm64 işinde zaten çalışıyor
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Testler ve paket
+        run: bash build/macos/package-mac.sh ${{ matrix.rid }} ${{ matrix.args }}
+      - name: Uygulama paketi açılıyor mu?
+        if: matrix.rid == 'osx-arm64'
+        run: |
+          app="artifacts/LocalVault-$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' Directory.Build.props)-osx-arm64/LocalVault.app"
+          codesign --verify --deep --strict "$app"
+          "$app/Contents/MacOS/localvault-cli" --help | head -3
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.rid }}
+          path: |
+            artifacts/*.dmg
+            artifacts/*.dmg.sha256
+          if-no-files-found: error
+
+  release:
+    name: Paketleri sürüme ekle
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+      - name: GitHub sürümüne yükle
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          ls -l dist
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
+            || gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "LocalVault ${TAG#v}" --generate-notes
+          gh release upload "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --clobber
