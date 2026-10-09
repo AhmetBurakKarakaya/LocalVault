@@ -32,6 +32,10 @@ public sealed partial class EntryDetailViewModel : ViewModelBase
     [ObservableProperty]
     public partial double TotpProgress { get; set; }
 
+    /// <summary>Kalan sürenin açısı (0-360), dairesel sayaç için.</summary>
+    [ObservableProperty]
+    public partial double TotpSweep { get; set; }
+
     [ObservableProperty]
     public partial bool IsTotpExpiring { get; set; }
 
@@ -64,14 +68,23 @@ public sealed partial class EntryDetailViewModel : ViewModelBase
     public string Notes => Entry.Notes;
     public bool HasNotes => !string.IsNullOrWhiteSpace(Entry.Notes);
     public string Tags => string.Join(", ", Entry.Tags);
+    public IReadOnlyList<string> TagList => Entry.Tags;
     public bool HasTags => Entry.Tags.Count > 0;
     public bool HasAutoType => Entry.AutoTypeWindows.Count > 0;
     public string AutoTypeText => string.Join(", ", Entry.AutoTypeWindows);
     public string AutoTypeSequence => Entry.AutoTypeSequence ?? Vault.Core.AutoType.AutoTypeSequence.Default;
+    /// <summary>Başlığın altındaki kısa bilgi: ilk web sitesinin alan adı.</summary>
+    public string Subtitle => Entry.Urls.Select(HostOf).FirstOrDefault(h => h.Length > 0) ?? "";
+    public bool HasSubtitle => Subtitle.Length > 0;
     public string Initial => Display.Initial(Entry.Title);
     public int ColorIndex => Display.ColorIndex(Entry.Title);
     public string MatchModeLabel => EntryEditorViewModel.MatchModeOptions.First(o => o.Value == Entry.MatchMode).Label;
     public string UpdatedText => $"Son değişiklik: {Entry.UpdatedAt.ToLocalTime():dd.MM.yyyy HH:mm}";
+
+    private static string HostOf(string url) =>
+        Uri.TryCreate(url.Contains("://", StringComparison.Ordinal) ? url : "https://" + url, UriKind.Absolute, out var uri)
+            ? uri.Host
+            : url;
 
     public void RefreshTotp()
     {
@@ -83,6 +96,7 @@ public sealed partial class EntryDetailViewModel : ViewModelBase
             TotpCode = Display.FormatOtp(code.Code);
             TotpRemaining = code.RemainingSeconds;
             TotpProgress = 100.0 * code.RemainingSeconds / code.Period;
+            TotpSweep = 360.0 * code.RemainingSeconds / code.Period;
             IsTotpExpiring = code.RemainingSeconds <= 5;
             TotpError = null;
         }

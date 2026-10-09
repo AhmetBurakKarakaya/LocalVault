@@ -28,6 +28,11 @@ public static class Converters
 
     public static IValueConverter EyeIcon { get; } = new BoolToResourceConverter("IconEyeOff", "IconEye");
 
+    /// <summary>Kaynak adı (ör. "IconTag") → uygulama kaynağındaki geometri.</summary>
+    public static IValueConverter ResourceIcon { get; } =
+        new FuncValueConverter<string?, object?>(key =>
+            key is not null && Avalonia.Application.Current?.TryGetResource(key, null, out var resource) == true ? resource : null);
+
     private static IBrush Brush(string hex) => new ImmutableSolidColorBrush(Color.Parse(hex));
 
     /// <summary>bool → uygulama kaynağındaki iki geometriden biri.</summary>

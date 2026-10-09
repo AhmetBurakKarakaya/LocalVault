@@ -6,7 +6,9 @@ namespace Vault.Desktop.Services;
 /// </summary>
 public sealed class SingleInstance : IDisposable
 {
-    private static readonly string BaseName = $"LocalVault.Desktop.{Environment.UserName}";
+    // LOCALVAULT_INSTANCE: kurulu uygulamanın yanında ayrı bir örnek (ör. geliştirme sürümü) çalıştırmak için.
+    private static readonly string BaseName =
+        $"LocalVault.Desktop.{Environment.UserName}{Environment.GetEnvironmentVariable("LOCALVAULT_INSTANCE")}";
 
     private readonly Mutex _mutex;
     private readonly EventWaitHandle? _showSignal;

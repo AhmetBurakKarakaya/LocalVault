@@ -1,7 +1,7 @@
 {
   "name": "localvault-extension",
   "private": true,
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "LocalVault tarayıcı eklentisi (Chrome, Edge, Firefox)",
   "scripts": {
     "build": "node build.mjs",

@@ -9,57 +9,60 @@
 <body>
   <main>
     <header>
-      <img src="../icons/icon-48.png" width="40" height="40" alt="">
+      <img src="../icons/icon-48.png" width="48" height="48" alt="">
       <div>
         <h1>LocalVault</h1>
         <p class="muted">Tarayıcı eklentisi</p>
       </div>
     </header>
 
-    <section>
-      <h2>Bağlantı <span id="badge" class="badge"></span></h2>
+    <h2>Bağlantı <span id="badge" class="badge"></span></h2>
+    <div class="card">
       <div id="connection"><p class="muted">Kontrol ediliyor…</p></div>
-    </section>
+    </div>
 
-    <section>
-      <h2>Doldurma</h2>
-      <label class="toggle">
-        <input type="checkbox" id="showIcons">
-        <span>
-          <strong>Giriş alanlarında LocalVault simgesini göster</strong>
-          <small class="muted">Simgeye tıklayınca bu siteye ait hesaplar listelenir.</small>
-        </span>
-      </label>
-      <label class="toggle">
-        <input type="checkbox" id="continueFlow">
-        <span>
-          <strong>Giriş adımlarını otomatik tamamla</strong>
-          <small class="muted">LocalVault ile bir hesabı doldurduktan sonra, aynı sekmede birkaç dakika içinde beliren parola
-            adımını (önce e-posta isteyen siteler) ve doğrulama kodu (2FA) adımını aynı hesapla doldurur.</small>
-        </span>
-      </label>
-      <label class="toggle">
-        <input type="checkbox" id="offerSave">
-        <span>
-          <strong>Yeni hesapları kaydetmeyi öner</strong>
-          <small class="muted">LocalVault'ta olmayan bir hesapla giriş yaptığınızda veya parolanızı değiştirdiğinizde sayfada
-            "Kaydet / Güncelle" önerisi gösterir. Kaydetme yalnızca sizin tıklamanızla yapılır.</small>
-        </span>
-      </label>
-      <div id="never-box" hidden>
-        <p class="muted" style="margin: 4px 0 6px 28px">Hiç sorulmayacak siteler:</p>
-        <ul id="never-list" class="never-list"></ul>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="autofillOnLoad">
-        <span>
-          <strong>Sayfa açılınca otomatik doldur</strong>
-          <small class="muted">Siteye kayıtlı tek bir hesap varsa sormadan doldurur. Kolaylık sağlar, ancak ele geçirilmiş
-            (XSS içeren) bir sayfanın görünmez formlarla parolanızı okumasına imkân verebilir; bu yüzden varsayılan olarak kapalıdır.</small>
-        </span>
-      </label>
-      <p class="muted">Klavye kısayolu: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd> — tarayıcının uzantı kısayolları sayfasından değiştirilebilir.</p>
-    </section>
+    <h2>Doldurma</h2>
+    <label class="setting">
+      <span class="icon"><svg viewBox="0 0 24 24"><path d="M22,18V22H18V19H15V16H12L9.74,13.74C9.19,13.91 8.61,14 8,14A6,6 0 0,1 2,8A6,6 0 0,1 8,2A6,6 0 0,1 14,8C14,8.61 13.91,9.19 13.74,9.74L22,18M7,5A2,2 0 0,0 5,7A2,2 0 0,0 7,9A2,2 0 0,0 9,7A2,2 0 0,0 7,5Z"/></svg></span>
+      <span class="label">
+        <span>Giriş alanlarında LocalVault simgesini göster</span>
+        <small>Simgeye tıklayınca bu siteye ait hesaplar listelenir.</small>
+      </span>
+      <span class="switch-wrap"><span class="state-text"></span><input type="checkbox" class="switch" id="showIcons"></span>
+    </label>
+    <label class="setting">
+      <span class="icon"><svg viewBox="0 0 24 24"><path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7A3,3 0 0,1 15,10C15,11.31 14.17,12.42 13,12.83V15H15V17H13V18H11V12.83C9.83,12.42 9,11.31 9,10A3,3 0 0,1 12,7M12,9A1,1 0 0,0 11,10A1,1 0 0,0 12,11A1,1 0 0,0 13,10A1,1 0 0,0 12,9Z"/></svg></span>
+      <span class="label">
+        <span>Giriş adımlarını otomatik tamamla</span>
+        <small>LocalVault ile bir hesabı doldurduktan sonra, aynı sekmede birkaç dakika içinde beliren parola
+          adımını (önce e-posta isteyen siteler) ve doğrulama kodu (2FA) adımını aynı hesapla doldurur.</small>
+      </span>
+      <span class="switch-wrap"><span class="state-text"></span><input type="checkbox" class="switch" id="continueFlow"></span>
+    </label>
+    <label class="setting">
+      <span class="icon"><svg viewBox="0 0 24 24"><path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/></svg></span>
+      <span class="label">
+        <span>Yeni hesapları kaydetmeyi öner</span>
+        <small>LocalVault'ta olmayan bir hesapla giriş yaptığınızda veya parolanızı değiştirdiğinizde sayfada
+          "Kaydet / Güncelle" önerisi gösterir. Kaydetme yalnızca sizin tıklamanızla yapılır.</small>
+      </span>
+      <span class="switch-wrap"><span class="state-text"></span><input type="checkbox" class="switch" id="offerSave"></span>
+    </label>
+    <div id="never-box" class="nested" hidden>
+      <p class="muted">Hiç sorulmayacak siteler</p>
+      <ul id="never-list" class="never-list"></ul>
+    </div>
+    <label class="setting">
+      <span class="icon"><svg viewBox="0 0 24 24"><path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/></svg></span>
+      <span class="label">
+        <span>Sayfa açılınca otomatik doldur</span>
+        <small>Siteye kayıtlı tek bir hesap varsa sormadan doldurur. Kolaylık sağlar, ancak ele geçirilmiş
+          (XSS içeren) bir sayfanın görünmez formlarla parolanızı okumasına imkân verebilir; bu yüzden varsayılan olarak kapalıdır.</small>
+      </span>
+      <span class="switch-wrap"><span class="state-text"></span><input type="checkbox" class="switch" id="autofillOnLoad"></span>
+    </label>
+
+    <p class="hint muted">Klavye kısayolu: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd> — tarayıcının uzantı kısayolları sayfasından değiştirilebilir.</p>
   </main>
 
   <script src="../lib/ui-common.js"></script>

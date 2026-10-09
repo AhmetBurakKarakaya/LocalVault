@@ -17,123 +17,190 @@
         <KeyBinding Gesture="Delete" Command="{Binding DeleteEntryCommand}" />
     </UserControl.KeyBindings>
 
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="vm:NavItemViewModel">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Border Classes="pill" />
+                <PathIcon Data="{Binding IconKey, Converter={x:Static views:Converters.ResourceIcon}}"
+                          Width="15" Height="15" Margin="2,0,12,0" />
+                <TextBlock Grid.Column="1" Text="{Binding Label}" TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Classes="caption" Text="{Binding Count}" Margin="8,0,0,0"
+                           VerticalAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+    </UserControl.DataTemplates>
+
     <Panel>
-        <Grid ColumnDefinitions="320,*">
-            <!-- Kenar çubuğu: başlık, arama, liste -->
-            <Border Background="{DynamicResource SidebarBg}" BorderBrush="{DynamicResource SubtleBorder}"
-                    BorderThickness="0,0,1,0">
-                <Grid RowDefinitions="Auto,Auto,*,Auto">
-                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="16,14,10,10">
-                        <Image Source="/Assets/icon.png" Width="28" Height="28" />
-                        <StackPanel Grid.Column="1" Margin="10,0" VerticalAlignment="Center">
-                            <TextBlock Text="LocalVault" FontWeight="SemiBold" />
-                            <TextBlock Classes="caption" Text="{Binding VaultName}" TextTrimming="CharacterEllipsis" />
-                        </StackPanel>
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2">
-                            <Button Classes="icon" ToolTip.Tip="Parola üreteci (Ctrl+G)"
-                                    Command="{Binding OpenGeneratorCommand}">
-                                <PathIcon Data="{StaticResource IconKey}" />
-                            </Button>
-                            <Button Classes="icon" ToolTip.Tip="Ayarlar">
-                                <PathIcon Data="{StaticResource IconCog}" />
-                                <Button.Flyout>
-                                    <MenuFlyout Placement="BottomEdgeAlignedRight">
-                                        <MenuItem Header="Ayarlar…" Command="{Binding OpenSettingsCommand}" />
-                                        <MenuItem Header="Ana parolayı değiştir…" Command="{Binding ChangeMasterPasswordCommand}" />
-                                        <Separator />
-                                        <MenuItem Header="CSV'den içe aktar (KeePassXC, Bitwarden, 1Password)…" Command="{Binding ImportCsvCommand}" />
-                                        <MenuItem Header="QR kodundan hesap ekle">
-                                            <MenuItem Header="Ekrandaki QR kodunu tara"
-                                                      Command="{Binding ImportQrCommand}" CommandParameter="{x:Static services:QrSource.Screen}" />
-                                            <MenuItem Header="Panodaki görüntüden (Win+Shift+S)"
-                                                      Command="{Binding ImportQrCommand}" CommandParameter="{x:Static services:QrSource.Clipboard}" />
-                                            <MenuItem Header="Görüntü dosyasından…"
-                                                      Command="{Binding ImportQrCommand}" CommandParameter="{x:Static services:QrSource.File}" />
-                                        </MenuItem>
-                                    </MenuFlyout>
-                                </Button.Flyout>
-                            </Button>
-                            <Button Classes="icon" ToolTip.Tip="Kilitle (Ctrl+L)" Command="{Binding LockCommand}">
-                                <PathIcon Data="{StaticResource IconLock}" />
-                            </Button>
-                        </StackPanel>
-                    </Grid>
-
-                    <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="14,0,14,10">
-                        <TextBox x:Name="SearchBox" PlaceholderText="Ara  (Ctrl+F)" Text="{Binding SearchText}">
-                            <TextBox.InnerLeftContent>
-                                <PathIcon Data="{StaticResource IconSearch}" Width="14" Height="14" Margin="10,0,0,0"
-                                          Foreground="{DynamicResource TextTertiary}" />
-                            </TextBox.InnerLeftContent>
-                        </TextBox>
-                        <Button Grid.Column="1" Classes="accent" Margin="8,0,0,0" Padding="9"
-                                ToolTip.Tip="Yeni kayıt (Ctrl+N)" Command="{Binding NewEntryCommand}">
-                            <PathIcon Data="{StaticResource IconPlus}" Width="16" Height="16" />
-                        </Button>
-                    </Grid>
-
-                    <ListBox Grid.Row="2" Classes="entries" ItemsSource="{Binding Items}"
-                             SelectedItem="{Binding SelectedItem}" IsEnabled="{Binding IsNotEditing}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate x:DataType="vm:EntryListItemViewModel">
-                                <Grid ColumnDefinitions="Auto,*,Auto">
-                                    <Border Classes="avatar"
-                                            Background="{Binding ColorIndex, Converter={x:Static views:Converters.AvatarBrush}}">
-                                        <TextBlock Text="{Binding Initial}" />
-                                    </Border>
-                                    <StackPanel Grid.Column="1" Margin="12,0,6,0" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Title}" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Classes="caption" Text="{Binding Subtitle}" TextTrimming="CharacterEllipsis" />
-                                    </StackPanel>
-                                    <PathIcon Grid.Column="2" Data="{StaticResource IconClock}" Width="13" Height="13"
-                                              Foreground="{DynamicResource TextTertiary}" IsVisible="{Binding HasTotp}"
-                                              ToolTip.Tip="İki adımlı doğrulama kodu tanımlı" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-
-                    <StackPanel Grid.Row="2" IsVisible="{Binding IsEmpty}" VerticalAlignment="Center"
-                                Margin="32" Spacing="6">
-                        <TextBlock Text="Kasanız boş" FontWeight="SemiBold" HorizontalAlignment="Center" />
-                        <TextBlock Classes="caption" TextWrapping="Wrap" TextAlignment="Center"
-                                   Text="İlk hesabınızı eklemek için + düğmesine basın." />
+        <Grid ColumnDefinitions="216,*">
+            <!-- ============ Gezinme bölmesi (Mica üzerinde, saydam) ============ -->
+            <Grid RowDefinitions="*,Auto" Margin="0,0,0,8">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="4,4,4,0">
+                        <ListBox Classes="nav" ItemsSource="{Binding Categories}"
+                                 SelectedItem="{Binding SelectedCategory}" IsEnabled="{Binding IsNotEditing}" />
+                        <TextBlock Classes="caption" Text="Etiketler" Margin="18,14,0,4"
+                                   IsVisible="{Binding HasTags}" />
+                        <ListBox Classes="nav" ItemsSource="{Binding Tags}" SelectedItem="{Binding SelectedTag}"
+                                 IsEnabled="{Binding IsNotEditing}" />
                     </StackPanel>
-                    <TextBlock Grid.Row="2" Classes="caption" IsVisible="{Binding HasNoResults}"
-                               Text="Sonuç bulunamadı" HorizontalAlignment="Center" Margin="0,24" />
+                </ScrollViewer>
 
-                    <TextBlock Grid.Row="3" Classes="caption" Margin="18,8,18,10" Text="{Binding CountText}" />
+                <StackPanel Grid.Row="1" Margin="8,0" Spacing="2">
+                    <Button Classes="navfoot" ToolTip.Tip="Ctrl+G" Command="{Binding OpenGeneratorCommand}" AutomationProperties.Name="Parola üreteci">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <PathIcon Data="{StaticResource IconKey}" />
+                            <TextBlock Text="Parola üreteci" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="navfoot" AutomationProperties.Name="Araçlar ve ayarlar">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <PathIcon Data="{StaticResource IconCog}" />
+                            <TextBlock Text="Araçlar ve ayarlar" />
+                        </StackPanel>
+                        <Button.Flyout>
+                            <MenuFlyout Placement="RightEdgeAlignedBottom">
+                                <MenuItem Header="Ayarlar…" Command="{Binding OpenSettingsCommand}">
+                                    <MenuItem.Icon><PathIcon Data="{StaticResource IconCog}" /></MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Ana parolayı değiştir…" Command="{Binding ChangeMasterPasswordCommand}">
+                                    <MenuItem.Icon><PathIcon Data="{StaticResource IconShieldKey}" /></MenuItem.Icon>
+                                </MenuItem>
+                                <Separator />
+                                <MenuItem Header="CSV'den içe aktar (KeePassXC, Bitwarden, 1Password)…" Command="{Binding ImportCsvCommand}">
+                                    <MenuItem.Icon><PathIcon Data="{StaticResource IconImport}" /></MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="QR kodundan hesap ekle">
+                                    <MenuItem.Icon><PathIcon Data="{StaticResource IconQr}" /></MenuItem.Icon>
+                                    <MenuItem Header="Ekrandaki QR kodunu tara"
+                                              Command="{Binding ImportQrCommand}" CommandParameter="{x:Static services:QrSource.Screen}" />
+                                    <MenuItem Header="Panodaki görüntüden (Win+Shift+S)"
+                                              Command="{Binding ImportQrCommand}" CommandParameter="{x:Static services:QrSource.Clipboard}" />
+                                    <MenuItem Header="Görüntü dosyasından…"
+                                              Command="{Binding ImportQrCommand}" CommandParameter="{x:Static services:QrSource.File}" />
+                                </MenuItem>
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
+                    <Button Classes="navfoot" ToolTip.Tip="Ctrl+L" Command="{Binding LockCommand}" AutomationProperties.Name="Kilitle">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <PathIcon Data="{StaticResource IconLock}" />
+                            <TextBlock Text="Kilitle" />
+                        </StackPanel>
+                    </Button>
+                    <TextBlock Classes="caption" Text="{Binding VaultName}" TextTrimming="CharacterEllipsis"
+                               Margin="12,6,12,0" ToolTip.Tip="{Binding VaultName}" />
+                </StackPanel>
+            </Grid>
+
+            <!-- ============ İçerik katmanı: liste + ayrıntı ============ -->
+            <Border Grid.Column="1" Classes="layer">
+                <Grid ColumnDefinitions="300,*">
+                    <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,1,0">
+                        <Grid RowDefinitions="Auto,Auto,*">
+                            <Grid ColumnDefinitions="*,Auto" Margin="18,16,12,10">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Classes="h2" Text="{Binding ListTitle}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Classes="caption" Text="{Binding CountText}" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Classes="accent" Padding="9" VerticalAlignment="Center"
+                                        ToolTip.Tip="Yeni kayıt (Ctrl+N)" Command="{Binding NewEntryCommand}" AutomationProperties.Name="Yeni kayıt">
+                                    <PathIcon Data="{StaticResource IconPlus}" Width="16" Height="16" />
+                                </Button>
+                            </Grid>
+
+                            <TextBox Grid.Row="1" x:Name="SearchBox" Margin="14,0,14,10"
+                                     PlaceholderText="Ara  (Ctrl+F)" Text="{Binding SearchText}">
+                                <TextBox.InnerLeftContent>
+                                    <PathIcon Data="{StaticResource IconSearch}" Width="14" Height="14" Margin="10,0,0,0"
+                                              Foreground="{DynamicResource TextTertiary}" />
+                                </TextBox.InnerLeftContent>
+                            </TextBox>
+
+                            <ListBox Grid.Row="2" Classes="entries" ItemsSource="{Binding Items}"
+                                     SelectedItem="{Binding SelectedItem}" IsEnabled="{Binding IsNotEditing}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:EntryListItemViewModel">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <Border Classes="pill" />
+                                            <Border Classes="avatar" Width="32" Height="32"
+                                                    Background="{Binding ColorIndex, Converter={x:Static views:Converters.AvatarBrush}}">
+                                                <TextBlock Text="{Binding Initial}" FontSize="14" />
+                                            </Border>
+                                            <StackPanel Grid.Column="1" Margin="12,0,6,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Title}" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Classes="caption" Text="{Binding Subtitle}" TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                            <PathIcon Grid.Column="2" Data="{StaticResource IconClock}" Width="13" Height="13"
+                                                      Foreground="{DynamicResource TextTertiary}" IsVisible="{Binding HasTotp}"
+                                                      ToolTip.Tip="İki adımlı doğrulama kodu tanımlı" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <StackPanel Grid.Row="2" IsVisible="{Binding IsEmpty}" VerticalAlignment="Center"
+                                        Margin="32" Spacing="8">
+                                <PathIcon Data="{StaticResource IconShieldKey}" Width="40" Height="40"
+                                          Foreground="{DynamicResource AccentText}" Opacity="0.7" />
+                                <TextBlock Text="Kasanız boş" Classes="strong" HorizontalAlignment="Center" />
+                                <TextBlock Classes="caption" TextWrapping="Wrap" TextAlignment="Center"
+                                           Text="İlk hesabınızı eklemek için + düğmesine basın ya da Araçlar menüsünden içe aktarın." />
+                            </StackPanel>
+                            <StackPanel Grid.Row="2" IsVisible="{Binding HasNoResults}" HorizontalAlignment="Center"
+                                        Margin="0,32" Spacing="8">
+                                <PathIcon Data="{StaticResource IconSearch}" Width="28" Height="28"
+                                          Foreground="{DynamicResource TextTertiary}" />
+                                <TextBlock Classes="secondary" Text="Sonuç bulunamadı" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Ayrıntı veya düzenleyici -->
+                    <Panel Grid.Column="1">
+                        <ContentControl Content="{Binding Detail}" IsVisible="{Binding IsNotEditing}" />
+                        <ContentControl Content="{Binding Editor}" IsVisible="{Binding IsEditing}" />
+
+                        <StackPanel IsVisible="{Binding ShowPlaceholder}" HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" Spacing="10" Margin="24">
+                            <Border Width="72" Height="72" CornerRadius="36" Background="{DynamicResource AccentSoft}"
+                                    HorizontalAlignment="Center" Margin="0,0,0,6">
+                                <PathIcon Data="{StaticResource IconShieldKey}" Width="32" Height="32"
+                                          Foreground="{DynamicResource AccentText}" />
+                            </Border>
+                            <TextBlock Classes="strong" FontSize="16" Text="Bir kayıt seçin"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Classes="secondary" Text="Ayrıntılar ve doğrulama kodu burada görünür."
+                                       HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+                            <WrapPanel HorizontalAlignment="Center" Margin="0,8,0,0">
+                                <Border Classes="chip" Margin="3"><TextBlock Classes="caption" Text="Ctrl+B  kullanıcı adı" /></Border>
+                                <Border Classes="chip" Margin="3"><TextBlock Classes="caption" Text="Ctrl+C  parola" /></Border>
+                                <Border Classes="chip" Margin="3"><TextBlock Classes="caption" Text="Ctrl+T  doğrulama kodu" /></Border>
+                            </WrapPanel>
+                        </StackPanel>
+                    </Panel>
                 </Grid>
             </Border>
-
-            <!-- Sağ panel: ayrıntı veya düzenleyici -->
-            <Panel Grid.Column="1">
-                <ContentControl Content="{Binding Detail}" IsVisible="{Binding IsNotEditing}" />
-                <ContentControl Content="{Binding Editor}" IsVisible="{Binding IsEditing}" />
-
-                <StackPanel IsVisible="{Binding ShowPlaceholder}" HorizontalAlignment="Center"
-                            VerticalAlignment="Center" Spacing="10">
-                    <PathIcon Data="{StaticResource IconShieldKey}" Width="56" Height="56"
-                              Foreground="{DynamicResource SubtleBorder}" />
-                    <TextBlock Classes="secondary" Text="Ayrıntılarını görmek için bir kayıt seçin"
-                               HorizontalAlignment="Center" />
-                    <TextBlock Classes="caption" HorizontalAlignment="Center" TextAlignment="Center"
-                               Text="Ctrl+B kullanıcı adı · Ctrl+C parola · Ctrl+T doğrulama kodu" />
-                </StackPanel>
-            </Panel>
         </Grid>
 
-        <!-- Bildirim -->
-        <Border x:Name="Toast" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="320,0,0,80"
-                Padding="16,10" CornerRadius="8" Background="#F01F2328" BoxShadow="0 6 18 0 #33000000"
-                BorderBrush="#33FFFFFF" BorderThickness="1"
+        <!-- Bildirim (InfoBar) -->
+        <Border x:Name="Toast" Classes="toast" HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                Margin="216,0,0,28"
                 IsVisible="{Binding StatusMessage, Converter={x:Static ObjectConverters.IsNotNull}}"
                 Classes.error="{Binding IsStatusError}">
-            <TextBlock Text="{Binding StatusMessage}" Foreground="White" TextWrapping="Wrap" MaxWidth="560" />
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Panel Width="16" Height="16" VerticalAlignment="Top" Margin="0,2,0,0">
+                    <PathIcon x:Name="ToastInfo" Data="{StaticResource IconInfo}" Width="16" Height="16"
+                              Foreground="{DynamicResource SystemAccentColor}" />
+                    <PathIcon x:Name="ToastAlert" Data="{StaticResource IconAlert}" Width="16" Height="16"
+                              Foreground="{DynamicResource DangerBrush}" IsVisible="False" />
+                </Panel>
+                <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" MaxWidth="520" />
+            </StackPanel>
         </Border>
 
         <!-- Katman: onay, üreteç, ayarlar... -->
-        <Border Background="{DynamicResource OverlayBg}" IsVisible="{Binding HasOverlay}">
+        <Border Background="{DynamicResource SmokeBg}" IsVisible="{Binding HasOverlay}">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <ContentControl Content="{Binding Overlay}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                 Margin="24" />
@@ -142,8 +209,42 @@
     </Panel>
 
     <UserControl.Styles>
-        <Style Selector="Border#Toast.error">
-            <Setter Property="Background" Value="#DC2626" />
+        <Style Selector="Button.navfoot">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="CornerRadius" Value="5" />
+        </Style>
+        <Style Selector="Button.navfoot PathIcon">
+            <Setter Property="Width" Value="15" />
+            <Setter Property="Height" Value="15" />
+        </Style>
+        <Style Selector="Button.navfoot:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SubtleFill}" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        <Style Selector="Button.navfoot:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SubtleFillPressed}" />
+        </Style>
+
+        <Style Selector="Border.toast">
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Background" Value="{DynamicResource InfoBarBg}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CardStroke}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BoxShadow" Value="0 8 24 0 #29000000" />
+        </Style>
+        <Style Selector="Border.toast.error">
+            <Setter Property="Background" Value="{DynamicResource DangerBg}" />
+        </Style>
+        <Style Selector="Border.toast.error PathIcon#ToastInfo">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+        <Style Selector="Border.toast.error PathIcon#ToastAlert">
+            <Setter Property="IsVisible" Value="True" />
         </Style>
     </UserControl.Styles>
 </UserControl>

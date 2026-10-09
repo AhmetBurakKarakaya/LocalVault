@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     LocalVault kurulum paketini üretir: artifacts\LocalVault-<sürüm>-win-x64.zip
 

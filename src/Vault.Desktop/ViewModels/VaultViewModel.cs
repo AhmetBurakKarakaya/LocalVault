@@ -20,6 +20,25 @@ public sealed partial class VaultViewModel : ViewModelBase, IDisposable
 
     public ObservableCollection<EntryListItemViewModel> Items { get; } = [];
 
+    /// <summary>Sabit gezinme kategorileri.</summary>
+    public IReadOnlyList<NavItemViewModel> Categories { get; } =
+    [
+        new("all", "Tüm kayıtlar", "IconGrid", _ => true),
+        new("totp", "Doğrulama kodları", "IconClock", e => e.Totp is not null),
+        new("autotype", "Auto-Type", "IconKeyboard", e => e.AutoTypeWindows.Count > 0),
+    ];
+
+    /// <summary>Kayıtlardaki etiketler (sayılarıyla); kayıtlar değiştikçe güncellenir.</summary>
+    public ObservableCollection<NavItemViewModel> Tags { get; } = [];
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ListTitle))]
+    public partial NavItemViewModel? SelectedCategory { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ListTitle))]
+    public partial NavItemViewModel? SelectedTag { get; set; }
+
     [ObservableProperty] public partial string SearchText { get; set; } = "";
 
     [ObservableProperty]
@@ -50,7 +69,84 @@ public sealed partial class VaultViewModel : ViewModelBase, IDisposable
         _ticker.Start();
         _qr = new QrScanService(services.Platform);
         _services.Vault.DataChanged += OnDataChanged;
+        SelectedCategory = Categories[0];
         Refresh();
+    }
+
+    public string ListTitle => SelectedTag?.Label ?? SelectedCategory?.Label ?? Categories[0].Label;
+    public bool HasTags => Tags.Count > 0;
+
+    private NavItemViewModel ActiveFilter => SelectedTag ?? SelectedCategory ?? Categories[0];
+
+    // Kategori ve etiket listeleri tek bir seçim gibi davranır.
+    partial void OnSelectedCategoryChanged(NavItemViewModel? value)
+    {
+        if (value is not null)
+        {
+            SelectedTag = null;
+            Refresh(SelectedItem?.Entry.Id);
+        }
+        else if (SelectedTag is null)
+        {
+            SelectedCategory = Categories[0];
+        }
+    }
+
+    partial void OnSelectedTagChanged(NavItemViewModel? value)
+    {
+        if (value is not null)
+        {
+            SelectedCategory = null;
+            Refresh(SelectedItem?.Entry.Id);
+        }
+        else if (SelectedCategory is null && !_updatingTags)
+        {
+            SelectedCategory = Categories[0];
+        }
+    }
+
+    private bool _updatingTags;
+
+    /// <summary>Sayıları ve etiket listesini kayıtlara göre günceller (mevcut öğe örnekleri korunur).</summary>
+    private void UpdateNavigation()
+    {
+        foreach (var category in Categories)
+            category.Count = Data.Entries.Count(category.Filter);
+
+        var counts = Data.Entries
+            .SelectMany(e => e.Tags.Distinct(StringComparer.CurrentCultureIgnoreCase))
+            .GroupBy(t => t, StringComparer.CurrentCultureIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.Count(), StringComparer.CurrentCultureIgnoreCase);
+
+        _updatingTags = true;
+        try
+        {
+            foreach (var stale in Tags.Where(t => !counts.ContainsKey(t.Label)).ToList())
+            {
+                if (ReferenceEquals(SelectedTag, stale))
+                {
+                    SelectedTag = null;
+                    SelectedCategory = Categories[0];
+                }
+                Tags.Remove(stale);
+            }
+            foreach (var (tag, count) in counts.OrderBy(p => p.Key, StringComparer.CurrentCultureIgnoreCase))
+            {
+                var item = Tags.FirstOrDefault(t => t.Label.Equals(tag, StringComparison.CurrentCultureIgnoreCase));
+                if (item is null)
+                {
+                    item = NavItemViewModel.ForTag(tag);
+                    var index = Tags.TakeWhile(t => string.Compare(t.Label, tag, StringComparison.CurrentCultureIgnoreCase) < 0).Count();
+                    Tags.Insert(index, item);
+                }
+                item.Count = count;
+            }
+        }
+        finally
+        {
+            _updatingTags = false;
+        }
+        OnPropertyChanged(nameof(HasTags));
     }
 
     /// <summary>Kasa arayüz dışından değişti (ör. tarayıcıdan hesap kaydedildi): listeyi yenile.</summary>
@@ -68,8 +164,8 @@ public sealed partial class VaultViewModel : ViewModelBase, IDisposable
     public bool ShowPlaceholder => Detail is null && Editor is null;
     public bool IsEmpty => Data.Entries.Count == 0;
     public bool HasNoResults => Items.Count == 0 && !IsEmpty;
-    public string CountText => Items.Count == Data.Entries.Count
-        ? $"{Data.Entries.Count} kayıt"
+    public string CountText => Items.Count == Data.Entries.Count || ActiveFilter != Categories[0] && string.IsNullOrWhiteSpace(SearchText)
+        ? $"{Items.Count} kayıt"
         : $"{Items.Count} / {Data.Entries.Count} kayıt";
     public string VaultName => Path.GetFileName(_services.Vault.Session.FilePath);
 
@@ -81,8 +177,10 @@ public sealed partial class VaultViewModel : ViewModelBase, IDisposable
     /// <summary>Listeyi arama metnine göre yeniden oluşturur ve mümkünse seçimi korur.</summary>
     private void Refresh(Guid? selectId = null)
     {
+        UpdateNavigation();
+        var filter = ActiveFilter.Filter;
         Items.Clear();
-        foreach (var entry in Data.Search(SearchText))
+        foreach (var entry in Data.Search(SearchText).Where(filter))
             Items.Add(new EntryListItemViewModel(entry));
 
         SelectedItem = selectId is { } id ? Items.FirstOrDefault(i => i.Entry.Id == id) : null;

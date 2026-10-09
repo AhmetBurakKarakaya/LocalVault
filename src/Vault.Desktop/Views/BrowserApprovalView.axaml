@@ -3,29 +3,37 @@
              xmlns:vm="using:Vault.Desktop.ViewModels"
              x:Class="Vault.Desktop.Views.BrowserApprovalView"
              x:DataType="vm:BrowserApprovalViewModel">
-    <Border Classes="card" Width="460">
-        <StackPanel Spacing="14">
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <PathIcon Data="{StaticResource IconShieldKey}" Width="22" Height="22"
-                          Foreground="{DynamicResource AccentText}" />
-                <TextBlock Classes="h2" Text="Tarayıcı bağlantı isteği" VerticalAlignment="Center" />
-            </StackPanel>
-            <TextBlock Classes="secondary" Text="{Binding Message}" TextWrapping="Wrap" />
+    <Border Classes="dialog" Width="460">
+        <StackPanel>
+            <Border Classes="dialog-body">
+                <StackPanel Spacing="14">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource AccentSoft}">
+                            <PathIcon Data="{StaticResource IconShieldKey}" Width="18" Height="18"
+                                      Foreground="{DynamicResource AccentText}" />
+                        </Border>
+                        <TextBlock Classes="h2" Text="Tarayıcı bağlantı isteği" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
 
-            <StackPanel Spacing="6">
-                <TextBlock Classes="label" Text="Doğrulama kodu" />
-                <Border Classes="field" Background="{DynamicResource CodeBg}" HorizontalAlignment="Left" Padding="16,10">
-                    <TextBlock Classes="mono" Text="{Binding VerificationCode}" FontSize="24" FontWeight="SemiBold"
-                               Foreground="{DynamicResource AccentText}" LetterSpacing="2" />
-                </Border>
-                <TextBlock Classes="caption" TextWrapping="Wrap"
-                           Text="Bu kod, eklentinin ayarlar sayfasında gösterilen kodla aynı olmalı. Farklıysa veya bu isteği siz başlatmadıysanız reddedin." />
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                <Button Content="Reddet" Command="{Binding DenyCommand}" />
-                <Button Classes="accent" Content="İzin ver" Command="{Binding ApproveCommand}" />
-            </StackPanel>
+                    <StackPanel Spacing="6">
+                        <TextBlock Classes="label" Text="Doğrulama kodu" />
+                        <Border Background="{DynamicResource CodeBg}" CornerRadius="8" HorizontalAlignment="Left"
+                                Padding="18,10">
+                            <TextBlock Classes="mono" Text="{Binding VerificationCode}" FontSize="26" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AccentText}" LetterSpacing="2" />
+                        </Border>
+                        <TextBlock Classes="caption" TextWrapping="Wrap"
+                                   Text="Bu kod, eklentinin ayarlar sayfasında gösterilen kodla aynı olmalı. Farklıysa veya bu isteği siz başlatmadıysanız reddedin." />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <Border Classes="dialog-footer">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Button Classes="accent" Content="İzin ver" Command="{Binding ApproveCommand}" HorizontalAlignment="Stretch" />
+                    <Button Grid.Column="1" Content="Reddet" Command="{Binding DenyCommand}" HorizontalAlignment="Stretch" />
+                </Grid>
+            </Border>
         </StackPanel>
     </Border>
 </UserControl>

@@ -8,51 +8,66 @@ var LVUi = (() => {
   const ICON_SIZE = 18;
   const LOCK_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path fill="#fff" d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z"/></svg>';
 
+  // Fluent 2 (Windows 11) görünümü; renkler masaüstü uygulamasıyla aynı.
   const STYLE = `
-    :host { all: initial; }
-    .icon { position: fixed; width: ${ICON_SIZE}px; height: ${ICON_SIZE}px; border-radius: 5px; border: 0; padding: 0;
-            background: linear-gradient(#3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.25); opacity: .9; z-index: 2147483647; }
-    .icon:hover { opacity: 1; transform: scale(1.06); }
-    .menu { position: fixed; min-width: 260px; max-width: 360px; max-height: 280px; overflow-y: auto; z-index: 2147483647;
-            background: #fff; color: #111827; border: 1px solid #e5e7eb; border-radius: 10px; padding: 6px;
-            box-shadow: 0 10px 30px rgba(0,0,0,.18); font: 13px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; }
-    .menu-title { font-size: 11px; font-weight: 600; color: #6b7280; padding: 4px 8px 6px; letter-spacing: .02em; }
-    .item { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent; text-align: left;
-            padding: 7px 8px; border-radius: 7px; cursor: pointer; font: inherit; color: inherit; }
-    .item:hover, .item.active { background: #eef2ff; }
-    .avatar { flex: none; width: 28px; height: 28px; border-radius: 8px; color: #fff; font-weight: 600;
+    :host { all: initial;
+      --lv-font: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+      --lv-surface: #f9f9f9; --lv-stroke: rgba(0,0,0,.08); --lv-fg: rgba(0,0,0,.89); --lv-muted: rgba(0,0,0,.6);
+      --lv-hover: rgba(0,0,0,.045); --lv-active: rgba(37,99,235,.1); --lv-accent: #2563eb; --lv-accent-hover: #1d4ed8;
+      --lv-control: #fff; --lv-control-stroke: rgba(0,0,0,.09); --lv-control-bottom: rgba(0,0,0,.16);
+      --lv-shadow: 0 8px 16px rgba(0,0,0,.14), 0 0 2px rgba(0,0,0,.08); }
+    @media (prefers-color-scheme: dark) {
+      :host { --lv-surface: #2c2c2c; --lv-stroke: rgba(0,0,0,.3); --lv-fg: #fff; --lv-muted: rgba(255,255,255,.72);
+        --lv-hover: rgba(255,255,255,.06); --lv-active: rgba(59,130,246,.18); --lv-accent: #3b82f6; --lv-accent-hover: #60a5fa;
+        --lv-control: #373737; --lv-control-stroke: rgba(255,255,255,.07); --lv-control-bottom: rgba(255,255,255,.05);
+        --lv-shadow: 0 8px 16px rgba(0,0,0,.36), 0 0 2px rgba(0,0,0,.3); }
+    }
+    .icon { position: fixed; width: ${ICON_SIZE}px; height: ${ICON_SIZE}px; border-radius: 4px; border: 0; padding: 0;
+            background: var(--lv-accent); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.2); opacity: .88; z-index: 2147483647;
+            transition: opacity .1s, background-color .1s; }
+    .icon:hover { opacity: 1; background: var(--lv-accent-hover); }
+    .menu { position: fixed; min-width: 260px; max-width: 360px; max-height: 300px; overflow-y: auto; z-index: 2147483647;
+            box-sizing: border-box; background: var(--lv-surface); color: var(--lv-fg); border: 1px solid var(--lv-stroke);
+            border-radius: 8px; padding: 4px; box-shadow: var(--lv-shadow); font: 14px/1.4 var(--lv-font);
+            animation: lv-in .12s ease-out; }
+    .menu-title { font-size: 12px; font-weight: 600; color: var(--lv-muted); padding: 6px 10px 6px; }
+    .item { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; border: 0; background: transparent;
+            text-align: left; padding: 6px 10px; margin: 1px 0; border-radius: 4px; cursor: pointer; font: inherit; color: inherit; }
+    .item:hover { background: var(--lv-hover); }
+    .item.active { background: var(--lv-hover); }
+    .item.active::before { content: ""; position: absolute; left: 0; top: 50%; width: 3px; height: 16px; margin-top: -8px;
+                           border-radius: 2px; background: var(--lv-accent); }
+    .avatar { flex: none; width: 28px; height: 28px; border-radius: 6px; color: #fff; font-weight: 600; font-size: 13px;
               display: flex; align-items: center; justify-content: center; }
     .text { min-width: 0; }
     .title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sub { color: #6b7280; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .toast { position: fixed; right: 20px; bottom: 20px; max-width: 360px; z-index: 2147483647; background: #1f2328; color: #fff;
-             padding: 10px 14px; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.3);
-             font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; display: flex; gap: 10px; align-items: center; }
-    .toast .badge { flex: none; width: 20px; height: 20px; border-radius: 6px; background: linear-gradient(#3b82f6, #1d4ed8);
+    .sub { color: var(--lv-muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .toast { position: fixed; right: 20px; bottom: 20px; max-width: 380px; z-index: 2147483647; box-sizing: border-box;
+             background: var(--lv-surface); color: var(--lv-fg); border: 1px solid var(--lv-stroke);
+             padding: 12px 16px; border-radius: 8px; box-shadow: var(--lv-shadow);
+             font: 14px/1.4 var(--lv-font); display: flex; gap: 12px; align-items: center; animation: lv-in .15s ease-out; }
+    .toast .badge, .save .head .badge { flex: none; width: 20px; height: 20px; border-radius: 5px; background: var(--lv-accent);
                     display: flex; align-items: center; justify-content: center; }
-    .save { position: fixed; top: 16px; right: 16px; width: 330px; z-index: 2147483647; box-sizing: border-box;
-            background: #fff; color: #111827; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px;
-            box-shadow: 0 12px 32px rgba(0,0,0,.2); font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
-    .save .head { display: flex; align-items: center; gap: 8px; font-weight: 600; }
-    .save .head .badge { flex: none; width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(#3b82f6, #1d4ed8);
-                         display: flex; align-items: center; justify-content: center; }
-    .save .close { margin-left: auto; border: 0; background: transparent; color: #6b7280; font-size: 18px; cursor: pointer; line-height: 1; padding: 2px 4px; }
-    .save p { margin: 8px 0 2px; }
-    .save .who { color: #6b7280; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .save .actions { display: flex; gap: 8px; justify-content: flex-end; align-items: center; margin-top: 12px; }
-    .save .actions button { font: inherit; border-radius: 7px; padding: 6px 12px; cursor: pointer; border: 1px solid transparent; }
-    .save .primary { background: #2563eb; color: #fff; }
-    .save .primary:hover { background: #1d4ed8; }
-    .save .never { background: transparent; color: #6b7280; margin-right: auto; padding-left: 0 !important; }
-    .save .never:hover { text-decoration: underline; }
-    @media (prefers-color-scheme: dark) {
-      .save { background: #22262c; color: #e5e7eb; border-color: #374151; }
-      .save .who, .save .close, .save .never { color: #9ca3af; }
-      .menu { background: #22262c; color: #e5e7eb; border-color: #374151; }
-      .item:hover, .item.active { background: #1e3460; }
-      .sub, .menu-title { color: #9ca3af; }
-    }`;
+    .save { position: fixed; top: 16px; right: 16px; width: 340px; z-index: 2147483647; box-sizing: border-box;
+            background: var(--lv-surface); color: var(--lv-fg); border: 1px solid var(--lv-stroke); border-radius: 8px;
+            padding: 16px; box-shadow: var(--lv-shadow); font: 14px/1.43 var(--lv-font); animation: lv-in .15s ease-out; }
+    .save .head { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+    .save .close { margin: -6px -8px -6px auto; width: 32px; height: 32px; border: 0; border-radius: 4px; background: transparent;
+                   color: var(--lv-muted); font-size: 18px; cursor: pointer; line-height: 1; }
+    .save .close:hover { background: var(--lv-hover); color: var(--lv-fg); }
+    .save p { margin: 10px 0 2px; }
+    .save .who { color: var(--lv-muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .save .actions { display: flex; gap: 8px; justify-content: flex-end; align-items: center; margin-top: 14px; }
+    .save .actions button { font: inherit; border-radius: 4px; min-height: 32px; padding: 4px 14px; cursor: pointer;
+                            border: 1px solid transparent; }
+    .save .primary { background: var(--lv-accent); color: #fff; border-color: rgba(255,255,255,.08); border-bottom-color: rgba(0,0,0,.3); }
+    .save .primary:hover { background: var(--lv-accent-hover); }
+    .save .never { background: var(--lv-control); color: var(--lv-fg); margin-right: auto;
+                   border-color: var(--lv-control-stroke); border-bottom-color: var(--lv-control-bottom); }
+    .save .never:hover { background: var(--lv-hover); }
+    @keyframes lv-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .menu, .toast, .save { animation: none; } }`;
 
   const AVATAR_COLORS = ['#2563EB', '#7C3AED', '#DB2777', '#EA580C', '#059669', '#0891B2', '#CA8A04', '#4F46E5'];
 

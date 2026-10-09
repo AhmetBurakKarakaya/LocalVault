@@ -45,8 +45,11 @@ public sealed class SettingsStore(string filePath)
     public string FilePath { get; } = filePath;
     public AppSettings Current { get; private set; } = new();
 
+    /// <summary>LOCALVAULT_SETTINGS ortam değişkeni (yalıtılmış deneme/geliştirme örnekleri için), yoksa %APPDATA%.</summary>
     public static string DefaultFilePath =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LocalVault", "settings.json");
+        Environment.GetEnvironmentVariable("LOCALVAULT_SETTINGS") is { Length: > 0 } fromEnv
+            ? fromEnv
+            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LocalVault", "settings.json");
 
     public static SettingsStore Load(string? filePath = null)
     {

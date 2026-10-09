@@ -10,150 +10,187 @@
     </UserControl.KeyBindings>
 
     <Grid RowDefinitions="Auto,*,Auto">
-        <TextBlock Classes="h2" Text="{Binding Heading}" Margin="40,28,40,8" />
+        <TextBlock Classes="h1" Text="{Binding Heading}" Margin="32,24,32,12" />
 
         <ScrollViewer Grid.Row="1">
-            <StackPanel Margin="40,8,40,24" MaxWidth="760" Spacing="14">
-                <StackPanel>
-                    <TextBlock Classes="label" Text="Başlık *" />
-                    <TextBox x:Name="TitleBox" Text="{Binding Title}" PlaceholderText="ör. GitHub" />
-                </StackPanel>
+            <StackPanel Margin="32,4,32,24" MaxWidth="720" Spacing="4">
+                <!-- Hesap -->
+                <Border Classes="card">
+                    <StackPanel Spacing="14">
+                        <StackPanel>
+                            <TextBlock Classes="label" Text="Başlık *" />
+                            <TextBox x:Name="TitleBox" Text="{Binding Title}" PlaceholderText="ör. GitHub" />
+                        </StackPanel>
 
-                <StackPanel>
-                    <TextBlock Classes="label" Text="Kullanıcı adı / e-posta" />
-                    <TextBox Text="{Binding Username}" />
-                </StackPanel>
+                        <StackPanel>
+                            <TextBlock Classes="label" Text="Kullanıcı adı / e-posta" />
+                            <TextBox Text="{Binding Username}" />
+                        </StackPanel>
 
-                <StackPanel Spacing="6">
-                    <TextBlock Classes="label" Text="Parola" Margin="0" />
-                    <Grid ColumnDefinitions="*,Auto,Auto">
-                        <TextBox Classes="mono" PasswordChar="•" RevealPassword="{Binding IsPasswordVisible}"
-                                 Text="{Binding Password}" />
-                        <Button Grid.Column="1" Classes="icon" Margin="4,0,0,0" ToolTip.Tip="Göster / gizle"
-                                Command="{Binding TogglePasswordVisibilityCommand}">
-                            <PathIcon Data="{Binding IsPasswordVisible, Converter={x:Static views:Converters.EyeIcon}}" />
-                        </Button>
-                        <Button Grid.Column="2" Classes="tool" Margin="4,0,0,0" ToolTip.Tip="Güçlü parola üret"
-                                Command="{Binding GeneratePasswordCommand}">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <PathIcon Data="{StaticResource IconKey}" />
-                                <TextBlock Text="Üret" />
+                        <StackPanel Spacing="6">
+                            <TextBlock Classes="label" Text="Parola" Margin="0" />
+                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                <TextBox Classes="mono" PasswordChar="•" RevealPassword="{Binding IsPasswordVisible}"
+                                         Text="{Binding Password}" />
+                                <Button Grid.Column="1" Classes="icon" Margin="4,0,0,0" ToolTip.Tip="Göster / gizle"
+                                        Command="{Binding TogglePasswordVisibilityCommand}">
+                                    <PathIcon Data="{Binding IsPasswordVisible, Converter={x:Static views:Converters.EyeIcon}}" />
+                                </Button>
+                                <Button Grid.Column="2" Margin="4,0,0,0" ToolTip.Tip="Güçlü parola üret" AutomationProperties.Name="Parola üret"
+                                        Command="{Binding GeneratePasswordCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <PathIcon Data="{StaticResource IconKey}" Width="14" Height="14" />
+                                        <TextBlock Text="Üret" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding StrengthValue}">
+                                <ProgressBar Classes="strength" Value="{Binding StrengthValue}" VerticalAlignment="Center"
+                                             Foreground="{Binding StrengthValue, Converter={x:Static views:Converters.StrengthBrush}}" />
+                                <TextBlock Grid.Column="1" Classes="caption" Margin="10,0,0,0" MinWidth="70"
+                                           Text="{Binding StrengthText}" />
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Web siteleri -->
+                <TextBlock Classes="label" Text="Web siteleri" Margin="2,14,0,8" />
+                <Border Classes="card">
+                    <StackPanel Spacing="14">
+                        <TextBox Text="{Binding UrlsText}" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="64"
+                                 PlaceholderText="https://ornek.com  (her satıra bir adres)" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                                <TextBlock Text="Hangi sayfalarda önerilsin?" />
+                                <TextBlock Classes="caption" TextWrapping="Wrap"
+                                           Text="Tarayıcı eklentisi bu kaydı yalnızca eşleşen adreslerde gösterir." />
                             </StackPanel>
-                        </Button>
-                    </Grid>
-                    <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding StrengthValue}">
-                        <ProgressBar Classes="strength" Value="{Binding StrengthValue}" VerticalAlignment="Center"
-                                     Foreground="{Binding StrengthValue, Converter={x:Static views:Converters.StrengthBrush}}" />
-                        <TextBlock Grid.Column="1" Classes="caption" Margin="10,0,0,0" MinWidth="70"
-                                   Text="{Binding StrengthText}" />
-                    </Grid>
-                </StackPanel>
+                            <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:EntryEditorViewModel.MatchModeOptions}"
+                                      SelectedItem="{Binding SelectedMatchMode}" MinWidth="240" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
-                <TextBlock Classes="section" Text="Web siteleri" />
-                <StackPanel>
-                    <TextBox Text="{Binding UrlsText}" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="64"
-                             PlaceholderText="https://ornek.com  (her satıra bir adres)" />
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Classes="label" Text="Hangi sayfalarda önerilsin?" />
-                    <ComboBox ItemsSource="{x:Static vm:EntryEditorViewModel.MatchModeOptions}"
-                              SelectedItem="{Binding SelectedMatchMode}" MinWidth="280" />
-                </StackPanel>
-
-                <TextBlock Classes="section" Text="İki adımlı doğrulama (TOTP)" />
-                <StackPanel Spacing="6">
-                    <Grid ColumnDefinitions="*,Auto,Auto">
-                        <TextBox Classes="mono" Text="{Binding TotpSecret}"
-                                 PlaceholderText="Gizli anahtar (Base32) veya otpauth:// adresi" />
-                        <Button Grid.Column="1" Classes="tool" Margin="4,0,0,0" ToolTip.Tip="QR kodundan ekle"
-                                IsEnabled="{Binding !IsScanning}">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <PathIcon Data="{StaticResource IconQr}" />
-                                <TextBlock Text="QR tara" />
+                <!-- TOTP -->
+                <TextBlock Classes="label" Text="İki adımlı doğrulama (TOTP)" Margin="2,14,0,8" />
+                <Border Classes="card">
+                    <StackPanel Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto,Auto">
+                            <TextBox Classes="mono" Text="{Binding TotpSecret}"
+                                     PlaceholderText="Gizli anahtar (Base32) veya otpauth:// adresi" />
+                            <Button Grid.Column="1" Margin="4,0,0,0" ToolTip.Tip="QR kodundan ekle" AutomationProperties.Name="QR tara"
+                                    IsEnabled="{Binding !IsScanning}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <PathIcon Data="{StaticResource IconQr}" Width="14" Height="14" />
+                                    <TextBlock Text="QR tara" />
+                                </StackPanel>
+                                <Button.Flyout>
+                                    <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                        <MenuItem Header="Ekrandaki QR kodunu tara" IsVisible="{Binding CanScanScreen}"
+                                                  Command="{Binding ScanQrCommand}" CommandParameter="{x:Static services:QrSource.Screen}" />
+                                        <MenuItem Header="Panodaki görüntüden (Win+Shift+S)" IsVisible="{Binding CanScanScreen}"
+                                                  Command="{Binding ScanQrCommand}" CommandParameter="{x:Static services:QrSource.Clipboard}" />
+                                        <MenuItem Header="Görüntü dosyasından…"
+                                                  Command="{Binding ScanQrCommand}" CommandParameter="{x:Static services:QrSource.File}" />
+                                    </MenuFlyout>
+                                </Button.Flyout>
+                            </Button>
+                            <Button Grid.Column="2" Classes="icon" Margin="4,0,0,0" ToolTip.Tip="Kaldır"
+                                    IsVisible="{Binding HasTotp}" Command="{Binding ClearTotpCommand}">
+                                <PathIcon Data="{StaticResource IconClose}" />
+                            </Button>
+                        </Grid>
+                        <TextBlock Classes="caption" TextWrapping="Wrap"
+                                   Text="Sitenin 2FA kurulum ekranındaki QR kodunu 'QR tara' ile okutun ya da 'kodu elle gir' anahtarını yapıştırın." />
+                        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsScanning}" />
+                        <Border Background="{DynamicResource CodeBg}" CornerRadius="6" Padding="12,8"
+                                IsVisible="{Binding TotpPreview, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <PathIcon Data="{StaticResource IconShieldKey}" Width="14" Height="14"
+                                          Foreground="{DynamicResource AccentText}" />
+                                <TextBlock Classes="mono" FontSize="16" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource AccentText}" Text="{Binding TotpPreview}" />
                             </StackPanel>
-                            <Button.Flyout>
-                                <MenuFlyout Placement="BottomEdgeAlignedRight">
-                                    <MenuItem Header="Ekrandaki QR kodunu tara" IsVisible="{Binding CanScanScreen}"
-                                              Command="{Binding ScanQrCommand}" CommandParameter="{x:Static services:QrSource.Screen}" />
-                                    <MenuItem Header="Panodaki görüntüden (Win+Shift+S)" IsVisible="{Binding CanScanScreen}"
-                                              Command="{Binding ScanQrCommand}" CommandParameter="{x:Static services:QrSource.Clipboard}" />
-                                    <MenuItem Header="Görüntü dosyasından…"
-                                              Command="{Binding ScanQrCommand}" CommandParameter="{x:Static services:QrSource.File}" />
-                                </MenuFlyout>
-                            </Button.Flyout>
-                        </Button>
-                        <Button Grid.Column="2" Classes="icon" Margin="4,0,0,0" ToolTip.Tip="Kaldır"
-                                IsVisible="{Binding HasTotp}" Command="{Binding ClearTotpCommand}">
-                            <PathIcon Data="{StaticResource IconClose}" />
-                        </Button>
-                    </Grid>
-                    <TextBlock Classes="caption" TextWrapping="Wrap"
-                               Text="Sitenin 2FA kurulum ekranındaki QR kodunu 'QR tara' ile okutun ya da 'kodu elle gir' anahtarını yapıştırın." />
-                    <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsScanning}" />
-                    <Border Classes="field" Background="{DynamicResource CodeBg}" Padding="12,8"
-                            IsVisible="{Binding TotpPreview, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-                        <TextBlock Classes="mono" FontSize="16" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource AccentText}" Text="{Binding TotpPreview}" />
-                    </Border>
-                    <TextBlock Classes="error" Text="{Binding TotpError}"
-                               IsVisible="{Binding TotpError, Converter={x:Static ObjectConverters.IsNotNull}}" />
-                    <Button Classes="link" HorizontalAlignment="Left" Command="{Binding ToggleTotpAdvancedCommand}"
-                            IsVisible="{Binding HasTotp}" Content="Gelişmiş ayarlar (hane, süre, algoritma)" />
-                    <Grid ColumnDefinitions="Auto,Auto,Auto" IsVisible="{Binding ShowTotpAdvanced}">
-                        <StackPanel Margin="0,0,16,0">
-                            <TextBlock Classes="label" Text="Hane" />
-                            <NumericUpDown Value="{Binding TotpDigits}" Minimum="6" Maximum="10" Increment="1"
-                                           FormatString="0" Width="120" />
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Margin="0,0,16,0">
-                            <TextBlock Classes="label" Text="Süre (sn)" />
-                            <NumericUpDown Value="{Binding TotpPeriod}" Minimum="1" Maximum="300" Increment="15"
-                                           FormatString="0" Width="120" />
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Classes="label" Text="Algoritma" />
-                            <ComboBox ItemsSource="{x:Static vm:EntryEditorViewModel.Algorithms}"
-                                      SelectedItem="{Binding TotpAlgorithm}" Width="120" />
-                        </StackPanel>
-                    </Grid>
-                </StackPanel>
+                        </Border>
+                        <TextBlock Classes="error" Text="{Binding TotpError}"
+                                   IsVisible="{Binding TotpError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        <Button Classes="link" HorizontalAlignment="Left" Command="{Binding ToggleTotpAdvancedCommand}"
+                                IsVisible="{Binding HasTotp}" Content="Gelişmiş ayarlar (hane, süre, algoritma)" />
+                        <Grid ColumnDefinitions="Auto,Auto,Auto" IsVisible="{Binding ShowTotpAdvanced}">
+                            <StackPanel Margin="0,0,16,0">
+                                <TextBlock Classes="label" Text="Hane" />
+                                <NumericUpDown Value="{Binding TotpDigits}" Minimum="6" Maximum="10" Increment="1"
+                                               FormatString="0" Width="120" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,16,0">
+                                <TextBlock Classes="label" Text="Süre (sn)" />
+                                <NumericUpDown Value="{Binding TotpPeriod}" Minimum="1" Maximum="300" Increment="15"
+                                               FormatString="0" Width="120" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Classes="label" Text="Algoritma" />
+                                <ComboBox ItemsSource="{x:Static vm:EntryEditorViewModel.Algorithms}"
+                                          SelectedItem="{Binding TotpAlgorithm}" Width="120" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
-                <TextBlock Classes="section" Text="Auto-Type (masaüstü uygulamaları)" />
-                <StackPanel>
-                    <TextBlock Classes="label" Text="Pencere başlıkları" />
-                    <TextBox Text="{Binding AutoTypeWindowsText}" AcceptsReturn="True" MinHeight="56"
-                             PlaceholderText="*Uzak Masaüstü*  (her satıra bir desen; * ve ? kullanılabilir)" />
-                    <TextBlock Classes="caption" Margin="0,4,0,0" TextWrapping="Wrap"
-                               Text="Bu pencerelerden biri öndeyken Ctrl+Alt+A'ya basınca kullanıcı adı ve parola yazılır." />
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Classes="label" Text="Tuş dizisi" />
-                    <TextBox Classes="mono" Text="{Binding AutoTypeSequence}" PlaceholderText="{Binding DefaultAutoTypeSequence}" />
-                    <TextBlock Classes="error" Margin="0,4,0,0" Text="{Binding AutoTypeError}"
-                               IsVisible="{Binding AutoTypeError, Converter={x:Static ObjectConverters.IsNotNull}}" />
-                    <TextBlock Classes="caption" Margin="0,4,0,0" TextWrapping="Wrap"
-                               Text="{}{USERNAME} {PASSWORD} {TOTP} {TAB} {ENTER} {DELAY 500} … — boş bırakılırsa varsayılan kullanılır." />
-                </StackPanel>
+                <!-- Auto-Type -->
+                <TextBlock Classes="label" Text="Auto-Type (masaüstü uygulamaları)" Margin="2,14,0,8" />
+                <Border Classes="card">
+                    <StackPanel Spacing="14">
+                        <StackPanel>
+                            <TextBlock Classes="label" Text="Pencere başlıkları" />
+                            <TextBox Text="{Binding AutoTypeWindowsText}" AcceptsReturn="True" MinHeight="56"
+                                     PlaceholderText="*Uzak Masaüstü*  (her satıra bir desen; * ve ? kullanılabilir)" />
+                            <TextBlock Classes="caption" Margin="0,4,0,0" TextWrapping="Wrap"
+                                       Text="Bu pencerelerden biri öndeyken Ctrl+Alt+A'ya basınca kullanıcı adı ve parola yazılır." />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Classes="label" Text="Tuş dizisi" />
+                            <TextBox Classes="mono" Text="{Binding AutoTypeSequence}" PlaceholderText="{Binding DefaultAutoTypeSequence}" />
+                            <TextBlock Classes="error" Margin="0,4,0,0" Text="{Binding AutoTypeError}"
+                                       IsVisible="{Binding AutoTypeError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                            <TextBlock Classes="caption" Margin="0,4,0,0" TextWrapping="Wrap"
+                                       Text="{}{USERNAME} {PASSWORD} {TOTP} {TAB} {ENTER} {DELAY 500} … — boş bırakılırsa varsayılan kullanılır." />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
 
-                <TextBlock Classes="section" Text="Diğer" />
-                <StackPanel>
-                    <TextBlock Classes="label" Text="Notlar" />
-                    <TextBox Text="{Binding Notes}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="72" />
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Classes="label" Text="Etiketler" />
-                    <TextBox Text="{Binding TagsText}" PlaceholderText="iş, kişisel  (virgülle ayırın)" />
-                </StackPanel>
+                <!-- Diğer -->
+                <TextBlock Classes="label" Text="Diğer" Margin="2,14,0,8" />
+                <Border Classes="card">
+                    <StackPanel Spacing="14">
+                        <StackPanel>
+                            <TextBlock Classes="label" Text="Notlar" />
+                            <TextBox Text="{Binding Notes}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="72" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Classes="label" Text="Etiketler" />
+                            <TextBox Text="{Binding TagsText}" PlaceholderText="iş, kişisel  (virgülle ayırın)" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </ScrollViewer>
 
-        <Border Grid.Row="2" BorderBrush="{DynamicResource SubtleBorder}" BorderThickness="0,1,0,0"
-                Background="{DynamicResource SidebarBg}" Padding="40,12">
+        <!-- Sabit alt çubuk -->
+        <Border Grid.Row="2" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0"
+                Background="{DynamicResource LayerBg}" Padding="32,14">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Classes="error" VerticalAlignment="Center" Text="{Binding ErrorMessage}" />
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"
+                            IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                    <PathIcon Data="{StaticResource IconAlert}" Width="14" Height="14"
+                              Foreground="{DynamicResource DangerBrush}" />
+                    <TextBlock Classes="error" VerticalAlignment="Center" Text="{Binding ErrorMessage}" />
+                </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                    <Button Content="İptal" Command="{Binding CancelCommand}" />
-                    <Button Classes="accent" Content="Kaydet" Command="{Binding SaveCommand}" ToolTip.Tip="Ctrl+S" />
+                    <Button Content="İptal" MinWidth="96" HorizontalContentAlignment="Center"
+                            Command="{Binding CancelCommand}" />
+                    <Button Classes="accent" Content="Kaydet" MinWidth="96" HorizontalContentAlignment="Center"
+                            Command="{Binding SaveCommand}" ToolTip.Tip="Ctrl+S" />
                 </StackPanel>
             </Grid>
         </Border>

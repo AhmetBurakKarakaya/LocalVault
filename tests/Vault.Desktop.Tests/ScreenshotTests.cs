@@ -147,8 +147,12 @@ public sealed class ScreenshotTests : IDisposable
 
     private static void Capture(Window window, string theme, string name)
     {
-        Dispatcher.UIThread.RunJobs();
-        AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+        // Sayfa geçişleri ve saydamlık animasyonları bitsin diye zamanlayıcıyı birkaç kare ilerlet.
+        for (var i = 0; i < 30; i++)
+        {
+            Dispatcher.UIThread.RunJobs();
+            AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+        }
         Dispatcher.UIThread.RunJobs();
         var frame = window.CaptureRenderedFrame();
         Assert.NotNull(frame);

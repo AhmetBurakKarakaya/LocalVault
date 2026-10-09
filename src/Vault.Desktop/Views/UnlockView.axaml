@@ -3,7 +3,7 @@
              xmlns:vm="using:Vault.Desktop.ViewModels"
              x:Class="Vault.Desktop.Views.UnlockView"
              x:DataType="vm:UnlockViewModel">
-    <Border Classes="card" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Border Classes="hero" Width="420" HorizontalAlignment="Center" VerticalAlignment="Center">
         <StackPanel Spacing="16">
             <Image Source="/Assets/icon.png" Width="64" Height="64" HorizontalAlignment="Center" />
 
@@ -36,7 +36,7 @@
                        IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
             <Button Classes="accent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                    Padding="0,10" IsDefault="True" Command="{Binding UnlockCommand}">
+                    Padding="0,10" IsDefault="True" Command="{Binding UnlockCommand}" AutomationProperties.Name="Kilidi aç">
                 <Panel>
                     <TextBlock Text="Kilidi aç" IsVisible="{Binding !IsBusy}" />
                     <TextBlock Text="Açılıyor…" IsVisible="{Binding IsBusy}" />

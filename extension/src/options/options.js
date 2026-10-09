@@ -69,7 +69,7 @@ async function refresh() {
 
   const children = [el('p', { className: 'muted', textContent: info.text })];
   if (status.state === 'not_paired') {
-    if (status.revoked) children.unshift(el('p', { className: 'notice', textContent: 'Önceki bağlantı uygulamadan kaldırılmış; yeniden eşleştirin.' }));
+    if (status.revoked) children.unshift(el('p', { className: 'notice warn', textContent: 'Önceki bağlantı uygulamadan kaldırılmış; yeniden eşleştirin.' }));
     children.push(button('LocalVault\'a bağlan', pair, 'primary'));
   } else if (status.state === 'app_not_running') {
     children.push(el('div', { className: 'row' },
@@ -93,8 +93,12 @@ async function loadSettings() {
   const current = { ...DEFAULT_SETTINGS, ...(settings ?? {}) };
   for (const key of Object.keys(DEFAULT_SETTINGS)) {
     const input = document.getElementById(key);
+    const stateText = input.parentElement.querySelector('.state-text');
+    const showState = () => { if (stateText) stateText.textContent = input.checked ? 'Açık' : 'Kapalı'; };
     input.checked = current[key];
+    showState();
     input.addEventListener('change', async () => {
+      showState();
       const { settings: latest } = await ext.storage.local.get('settings');
       await ext.storage.local.set({ settings: { ...DEFAULT_SETTINGS, ...(latest ?? {}), [key]: input.checked } });
     });

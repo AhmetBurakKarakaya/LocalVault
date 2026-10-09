@@ -3,15 +3,21 @@
              xmlns:vm="using:Vault.Desktop.ViewModels"
              x:Class="Vault.Desktop.Views.ConfirmView"
              x:DataType="vm:ConfirmViewModel">
-    <Border Classes="card" Width="440">
-        <StackPanel Spacing="14">
-            <TextBlock Classes="h2" Text="{Binding Title}" />
-            <TextBlock Classes="secondary" Text="{Binding Message}" TextWrapping="Wrap" />
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,6,0,0">
-                <Button Content="Vazgeç" Command="{Binding CancelCommand}" />
-                <Button Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}"
-                        Classes.danger="{Binding IsDestructive}" Classes.accent="{Binding !IsDestructive}" />
-            </StackPanel>
+    <Border Classes="dialog" Width="440">
+        <StackPanel>
+            <Border Classes="dialog-body">
+                <StackPanel Spacing="12">
+                    <TextBlock Classes="h2" Text="{Binding Title}" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+            <Border Classes="dialog-footer">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Button Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}" HorizontalAlignment="Stretch"
+                            Classes.danger="{Binding IsDestructive}" Classes.accent="{Binding !IsDestructive}" />
+                    <Button Grid.Column="1" Content="Vazgeç" Command="{Binding CancelCommand}" HorizontalAlignment="Stretch" />
+                </Grid>
+            </Border>
         </StackPanel>
     </Border>
 </UserControl>

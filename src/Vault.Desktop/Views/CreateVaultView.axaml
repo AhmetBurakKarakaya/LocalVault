@@ -4,7 +4,7 @@
              xmlns:views="using:Vault.Desktop.Views"
              x:Class="Vault.Desktop.Views.CreateVaultView"
              x:DataType="vm:CreateVaultViewModel">
-    <Border Classes="card" Width="440" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Border Classes="hero" Width="460" HorizontalAlignment="Center" VerticalAlignment="Center">
         <StackPanel Spacing="14">
             <Image Source="/Assets/icon.png" Width="56" Height="56" HorizontalAlignment="Center" />
 
@@ -46,7 +46,7 @@
                        IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
             <Button Classes="accent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                    Padding="0,10" IsDefault="True" Command="{Binding CreateCommand}">
+                    Padding="0,10" IsDefault="True" Command="{Binding CreateCommand}" AutomationProperties.Name="Kasayı oluştur">
                 <Panel>
                     <TextBlock Text="Kasayı oluştur" IsVisible="{Binding !IsBusy}" />
                     <TextBlock Text="Oluşturuluyor…" IsVisible="{Binding IsBusy}" />

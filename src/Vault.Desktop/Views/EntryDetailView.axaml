@@ -5,146 +5,206 @@
              x:Class="Vault.Desktop.Views.EntryDetailView"
              x:DataType="vm:EntryDetailViewModel">
     <ScrollViewer>
-        <StackPanel Margin="40,32,40,40" MaxWidth="760" Spacing="18">
+        <StackPanel Margin="32,24,32,32" MaxWidth="720" Spacing="4">
             <!-- Başlık -->
-            <Grid ColumnDefinitions="Auto,*,Auto">
-                <Border Classes="avatar" Width="52" Height="52" CornerRadius="14"
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,18">
+                <Border Classes="avatar" Width="56" Height="56" CornerRadius="12"
                         Background="{Binding ColorIndex, Converter={x:Static views:Converters.AvatarBrush}}">
-                    <TextBlock Text="{Binding Initial}" FontSize="22" />
+                    <TextBlock Text="{Binding Initial}" FontSize="24" />
                 </Border>
                 <StackPanel Grid.Column="1" Margin="16,0" VerticalAlignment="Center" Spacing="2">
                     <TextBlock Classes="h1" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
-                    <TextBlock Classes="caption" Text="{Binding UpdatedText}" />
+                    <TextBlock Classes="secondary" Text="{Binding Subtitle}" IsVisible="{Binding HasSubtitle}"
+                               TextTrimming="CharacterEllipsis" />
                 </StackPanel>
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <Button Classes="tool" ToolTip.Tip="Düzenle (Ctrl+E)" Command="{Binding EditCommand}">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <PathIcon Data="{StaticResource IconPencil}" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                    <Button ToolTip.Tip="Düzenle (Ctrl+E)" Command="{Binding EditCommand}" Padding="12,6" AutomationProperties.Name="Düzenle">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PathIcon Data="{StaticResource IconPencil}" Width="14" Height="14" />
                             <TextBlock Text="Düzenle" />
                         </StackPanel>
                     </Button>
-                    <Button Classes="icon" ToolTip.Tip="Sil (Delete)" Command="{Binding DeleteCommand}">
-                        <PathIcon Data="{StaticResource IconDelete}" Foreground="{DynamicResource DangerBrush}" />
+                    <Button Classes="icon" ToolTip.Tip="Diğer işlemler">
+                        <PathIcon Data="{StaticResource IconDots}" />
+                        <Button.Flyout>
+                            <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                <MenuItem Header="Kaydı sil" InputGesture="Delete" Command="{Binding DeleteCommand}"
+                                          Foreground="{DynamicResource DangerBrush}">
+                                    <MenuItem.Icon>
+                                        <PathIcon Data="{StaticResource IconDelete}" Foreground="{DynamicResource DangerBrush}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </MenuFlyout>
+                        </Button.Flyout>
                     </Button>
                 </StackPanel>
             </Grid>
 
             <!-- Kullanıcı adı -->
-            <StackPanel IsVisible="{Binding HasUsername}">
-                <TextBlock Classes="label" Text="Kullanıcı adı" />
-                <Border Classes="field">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <SelectableTextBlock Text="{Binding Username}" VerticalAlignment="Center" />
-                        <Button Grid.Column="1" Classes="icon" ToolTip.Tip="Kopyala (Ctrl+B)"
-                                Command="{Binding CopyUsernameCommand}">
-                            <PathIcon Data="{StaticResource IconCopy}" />
-                        </Button>
-                    </Grid>
-                </Border>
-            </StackPanel>
+            <Border Classes="card row" IsVisible="{Binding HasUsername}">
+                <Grid Classes="row" ColumnDefinitions="Auto,*,Auto">
+                    <PathIcon Classes="lead" Data="{StaticResource IconAccount}" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Classes="caption" Text="Kullanıcı adı" />
+                        <SelectableTextBlock Text="{Binding Username}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Button Grid.Column="2" Classes="icon reveal" ToolTip.Tip="Kopyala (Ctrl+B)"
+                            Command="{Binding CopyUsernameCommand}">
+                        <PathIcon Data="{StaticResource IconCopy}" />
+                    </Button>
+                </Grid>
+            </Border>
 
             <!-- Parola -->
-            <StackPanel IsVisible="{Binding HasPassword}">
-                <TextBlock Classes="label" Text="Parola" />
-                <Border Classes="field">
-                    <Grid ColumnDefinitions="*,Auto,Auto">
-                        <SelectableTextBlock Classes="mono" Text="{Binding DisplayPassword}" VerticalAlignment="Center"
-                                             TextWrapping="Wrap" />
-                        <Button Grid.Column="1" Classes="icon" ToolTip.Tip="Göster / gizle"
-                                Command="{Binding TogglePasswordVisibilityCommand}">
-                            <PathIcon Data="{Binding IsPasswordVisible, Converter={x:Static views:Converters.EyeIcon}}" />
-                        </Button>
-                        <Button Grid.Column="2" Classes="icon" ToolTip.Tip="Kopyala (Ctrl+C)"
-                                Command="{Binding CopyPasswordCommand}">
-                            <PathIcon Data="{StaticResource IconCopy}" />
-                        </Button>
-                    </Grid>
-                </Border>
-            </StackPanel>
+            <Border Classes="card row" IsVisible="{Binding HasPassword}">
+                <Grid Classes="row" ColumnDefinitions="Auto,*,Auto,Auto">
+                    <PathIcon Classes="lead" Data="{StaticResource IconKey}" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Classes="caption" Text="Parola" />
+                        <SelectableTextBlock Classes="mono" Text="{Binding DisplayPassword}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Button Grid.Column="2" Classes="icon" ToolTip.Tip="Göster / gizle"
+                            Command="{Binding TogglePasswordVisibilityCommand}">
+                        <PathIcon Data="{Binding IsPasswordVisible, Converter={x:Static views:Converters.EyeIcon}}" />
+                    </Button>
+                    <Button Grid.Column="3" Classes="icon reveal" ToolTip.Tip="Kopyala (Ctrl+C)"
+                            Command="{Binding CopyPasswordCommand}">
+                        <PathIcon Data="{StaticResource IconCopy}" />
+                    </Button>
+                </Grid>
+            </Border>
 
-            <!-- TOTP -->
-            <StackPanel IsVisible="{Binding HasTotp}">
-                <TextBlock Classes="label" Text="Doğrulama kodu (TOTP)" />
-                <Border Classes="field" Background="{DynamicResource CodeBg}">
-                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                        <TextBlock x:Name="TotpCode" Classes="mono" Text="{Binding TotpCode}" FontSize="26"
-                                   FontWeight="SemiBold"
-                                   Classes.expiring="{Binding IsTotpExpiring}" />
-                        <Button Grid.Column="1" Classes="icon" ToolTip.Tip="Kopyala (Ctrl+T)"
-                                Command="{Binding CopyTotpCommand}">
-                            <PathIcon Data="{StaticResource IconCopy}" />
-                        </Button>
-                        <Grid Grid.Row="1" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto" Margin="0,8,0,2">
-                            <ProgressBar Value="{Binding TotpProgress}" Maximum="100" Height="4" MinHeight="4"
-                                         VerticalAlignment="Center" CornerRadius="2" />
-                            <TextBlock Grid.Column="1" Classes="caption" Margin="10,0,0,0" MinWidth="34"
-                                       TextAlignment="Right" Text="{Binding TotpRemaining, StringFormat='{}{0} sn'}" />
-                        </Grid>
-                    </Grid>
-                </Border>
-                <TextBlock Classes="error" Margin="0,4,0,0" Text="{Binding TotpError}"
-                           IsVisible="{Binding TotpError, Converter={x:Static ObjectConverters.IsNotNull}}" />
-            </StackPanel>
+            <!-- Doğrulama kodu (TOTP) -->
+            <Border Classes="card row" IsVisible="{Binding HasTotp}">
+                <Grid Classes="row" ColumnDefinitions="Auto,*,Auto,Auto">
+                    <PathIcon Classes="lead" Data="{StaticResource IconShieldKey}" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Classes="caption" Text="Doğrulama kodu" />
+                        <TextBlock x:Name="TotpCode" Classes="mono" Text="{Binding TotpCode}" FontSize="24"
+                                   FontWeight="SemiBold" Classes.expiring="{Binding IsTotpExpiring}" />
+                        <TextBlock Classes="error" Text="{Binding TotpError}"
+                                   IsVisible="{Binding TotpError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    </StackPanel>
+                    <!-- Dairesel geri sayım -->
+                    <Panel Grid.Column="2" Width="34" Height="34" Margin="8,0" VerticalAlignment="Center"
+                           IsVisible="{Binding TotpError, Converter={x:Static ObjectConverters.IsNull}}"
+                           ToolTip.Tip="{Binding TotpRemaining, StringFormat='Kodun yenilenmesine {0} sn'}">
+                        <Ellipse Stroke="{DynamicResource DividerBrush}" StrokeThickness="3" />
+                        <Arc x:Name="TotpRing" StartAngle="-90" SweepAngle="{Binding TotpSweep}" StrokeThickness="3"
+                             StrokeLineCap="Round" Classes.expiring="{Binding IsTotpExpiring}" />
+                        <TextBlock Classes="caption" Text="{Binding TotpRemaining}" FontSize="11"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Panel>
+                    <Button Grid.Column="3" Classes="icon reveal" ToolTip.Tip="Kopyala (Ctrl+T)"
+                            Command="{Binding CopyTotpCommand}">
+                        <PathIcon Data="{StaticResource IconCopy}" />
+                    </Button>
+                </Grid>
+            </Border>
 
             <!-- Web siteleri -->
-            <StackPanel IsVisible="{Binding HasUrls}">
-                <TextBlock Classes="label" Text="Web siteleri" />
-                <Border Classes="field" Padding="14,4">
-                    <ItemsControl ItemsSource="{Binding UrlItems}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:UrlItemViewModel">
-                                <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,2">
-                                    <SelectableTextBlock Text="{Binding Url}" VerticalAlignment="Center"
+            <StackPanel IsVisible="{Binding HasUrls}" Spacing="4">
+                <TextBlock Classes="label" Text="Web siteleri" Margin="2,14,0,4" />
+                <ItemsControl ItemsSource="{Binding UrlItems}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><StackPanel Spacing="4" /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:UrlItemViewModel">
+                            <Border Classes="card row">
+                                <Grid Classes="row" ColumnDefinitions="Auto,*,Auto,Auto">
+                                    <PathIcon Classes="lead" Data="{StaticResource IconLink}" />
+                                    <SelectableTextBlock Grid.Column="1" Text="{Binding Url}" VerticalAlignment="Center"
+                                                         TextTrimming="CharacterEllipsis"
                                                          Foreground="{DynamicResource AccentText}" />
-                                    <Button Grid.Column="1" Classes="icon" ToolTip.Tip="Tarayıcıda aç"
+                                    <Button Grid.Column="2" Classes="icon reveal" ToolTip.Tip="Tarayıcıda aç"
                                             Command="{Binding OpenCommand}">
                                         <PathIcon Data="{StaticResource IconOpen}" />
                                     </Button>
-                                    <Button Grid.Column="2" Classes="icon" ToolTip.Tip="Kopyala"
+                                    <Button Grid.Column="3" Classes="icon reveal" ToolTip.Tip="Kopyala"
                                             Command="{Binding CopyCommand}">
                                         <PathIcon Data="{StaticResource IconCopy}" />
                                     </Button>
                                 </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Border>
-                <TextBlock Classes="caption" Margin="0,4,0,0"
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Classes="caption" Margin="2,2,0,0"
                            Text="{Binding MatchModeLabel, StringFormat='Eşleşme: {0}'}" />
             </StackPanel>
 
             <!-- Notlar -->
             <StackPanel IsVisible="{Binding HasNotes}">
-                <TextBlock Classes="label" Text="Notlar" />
-                <Border Classes="field">
+                <TextBlock Classes="label" Text="Notlar" Margin="2,14,0,8" />
+                <Border Classes="card">
                     <SelectableTextBlock Text="{Binding Notes}" TextWrapping="Wrap" />
                 </Border>
             </StackPanel>
 
+            <!-- Auto-Type -->
             <StackPanel IsVisible="{Binding HasAutoType}">
-                <TextBlock Classes="label" Text="Auto-Type (Ctrl+Alt+A)" />
-                <Border Classes="field">
-                    <StackPanel Spacing="2">
-                        <TextBlock Text="{Binding AutoTypeText}" TextWrapping="Wrap" />
-                        <TextBlock Classes="caption mono" Text="{Binding AutoTypeSequence}" />
-                    </StackPanel>
+                <TextBlock Classes="label" Text="Auto-Type (Ctrl+Alt+A)" Margin="2,14,0,8" />
+                <Border Classes="card row">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <PathIcon Classes="lead" Data="{StaticResource IconKeyboard}" />
+                        <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding AutoTypeText}" TextWrapping="Wrap" />
+                            <TextBlock Classes="caption mono" Text="{Binding AutoTypeSequence}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
                 </Border>
             </StackPanel>
 
+            <!-- Etiketler -->
             <StackPanel IsVisible="{Binding HasTags}">
-                <TextBlock Classes="label" Text="Etiketler" />
-                <TextBlock Classes="secondary" Text="{Binding Tags}" />
+                <TextBlock Classes="label" Text="Etiketler" Margin="2,14,0,8" />
+                <ItemsControl ItemsSource="{Binding TagList}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Border Classes="chip" Margin="0,0,6,6">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <PathIcon Data="{StaticResource IconTag}" Width="11" Height="11"
+                                              Foreground="{DynamicResource TextSecondary}" />
+                                    <TextBlock Text="{Binding}" FontSize="12" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
+
+            <TextBlock Classes="caption" Text="{Binding UpdatedText}" Margin="2,18,0,0" />
         </StackPanel>
     </ScrollViewer>
 
     <UserControl.Styles>
+        <Style Selector="Border.card.row">
+            <Setter Property="Padding" Value="16,10,10,10" />
+            <Setter Property="MinHeight" Value="60" />
+        </Style>
+        <Style Selector="PathIcon.lead">
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+            <Setter Property="Margin" Value="0,0,16,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}" />
+        </Style>
         <!-- Yerel Foreground stil ayarını ezeceğinden renkler burada tanımlı -->
         <Style Selector="TextBlock#TotpCode">
             <Setter Property="Foreground" Value="{DynamicResource AccentText}" />
         </Style>
         <Style Selector="TextBlock#TotpCode.expiring">
             <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+        </Style>
+        <Style Selector="Arc#TotpRing">
+            <Setter Property="Stroke" Value="{DynamicResource SystemAccentColor}" />
+        </Style>
+        <Style Selector="Arc#TotpRing.expiring">
+            <Setter Property="Stroke" Value="{DynamicResource DangerBrush}" />
         </Style>
     </UserControl.Styles>
 </UserControl>
