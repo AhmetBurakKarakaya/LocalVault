@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LocalVault",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Yerel LocalVault kasanızdaki hesapları web sitelerinde güvenle doldurur.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu/JphyEeH58HoIKDadj5nYDQhzZB3uclaG85DqfZvPP9VMGLeMRDHkKSlx4CeqHI0vLJPZ9jkUzHhZFqcbK6fkf2KkA4HdVvJ4QMLp0K7htcqm374vYOsQ9I//OJ3c3bPJUzZ2w5FsWecXkm+q93gCVtajnRrPkx8rZ5/gj7SeAAwczmkw1PGoZSnVWBiedOgjFMYGzFsuS6czkBc+DCO4esMKpMP113rmRBA4pRHIvUCTKBeaPkU3jLf9boe+Or0yJEya/0v8fE7R/eTIuoIC6WqUN4Nxf2/QZ+Kx6Tr149/vvwC7lRkApipFQFmZpqVp3WXKd0wMSjtluPGdNb2QIDAQAB",
   "permissions": ["nativeMessaging", "storage", "activeTab"],
