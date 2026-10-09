@@ -52,6 +52,14 @@ const cases = [
   [null, { name: 'referralCode' }, 'davet kodu'],
   [null, { label: 'Ürün kodu' }, 'ürün kodu'],
   [null, { type: 'tel', name: 'areaCode' }, 'alan kodu'],
+  // Uygulama ekranlarındaki alanlar (giriş değil)
+  [null, { name: 'InvoiceOutbox_AccountName_Filter' }, 'liste süzgeci: alıcı unvanı'],
+  [null, { name: 'CustomerFilter', placeholder: 'Müşteri ara' }, 'müşteri süzgeci'],
+  [null, { label: 'Şube Kodu' }, 'şube kodu (sayısal/kısa değil)'],
+  [null, { name: 'CariKodu', maxLength: 20 }, 'cari kodu (uzun)'],
+  ['otp', { label: 'Kod', inputMode: 'numeric' }, 'yalnızca "Kod" ama sayısal'],
+  ['otp', { name: 'code', maxLength: 6 }, 'code, 6 hane'],
+  ['otp', { placeholder: 'SMS code' }, 'SMS code'],
 ];
 
 for (const [expected, overrides, description] of cases) {

@@ -1,0 +1,10 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><link rel="stylesheet" href="fixture.css"><title>Giden Belgeler</title></head><body>
+<!-- Kurumsal uygulamanın liste ekranı (giriş sonrası): süzgeç alanları kullanıcı adı / doğrulama kodu sanılmamalı.
+     "InvoiceOutbox_AccountName_Filter" adındaki "Account", eskiden kullanıcı adı adımı sayılıp simge koyduruyordu. -->
+<form class="card" action="#" onsubmit="return false"><h1>Giden Belgeler</h1>
+  <label for="no">Fatura No</label><input id="no" name="InvoiceOutbox_InvoiceNumber_Filter">
+  <label for="acc">Alıcı Unvanı</label><input id="acc" name="InvoiceOutbox_AccountName_Filter">
+  <label for="sube">Şube Kodu</label><input id="sube" name="BranchCode">
+  <button type="submit">Filtrele</button>
+</form>
+</body></html>

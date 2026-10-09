@@ -278,6 +278,16 @@ try {
   }
   await capture(page, 'page-portal-auth-inputs');
 
+  // 4c) Uygulama ekranındaki süzgeç alanları (ör. "AccountName_Filter") giriş alanı sanılmamalı;
+  // gerçek "önce e-posta" giriş adımında ise simge görünmeye devam etmeli.
+  await page.send('Page.navigate', { url: 'http://localhost:8765/test/fixtures/app-filter.html' });
+  await waitFor(() => page.evaluate(`document.readyState === 'complete' && !!document.getElementById('acc')`), 10000, 'liste ekranı');
+  await new Promise((r) => setTimeout(r, 1500));   // içerik betiğinin taraması (300 ms gecikmeli) bitsin
+  check('Liste ekranının süzgeç alanlarına simge konmadı', !(await page.evaluate(`!!document.querySelector('localvault-ui')`)));
+  await page.send('Page.navigate', { url: 'http://localhost:8765/test/fixtures/username-step.html' });
+  const stepIcon = await waitFor(() => page.evaluate(`!!document.querySelector('localvault-ui') || null`), 10000, 'e-posta adımı simgesi').catch(() => false);
+  check('Yalnızca e-posta isteyen giriş adımında simge görünüyor', stepIcon === true);
+
   const log = serverLog.filter((l) => /→/.test(l));
   check('İstekler imzalı yoldan geçti (get-logins, get-credentials)',
     log.some((l) => l.startsWith('get-logins') && l.endsWith('ok')) && log.some((l) => l.startsWith('get-credentials') && l.endsWith('ok')));

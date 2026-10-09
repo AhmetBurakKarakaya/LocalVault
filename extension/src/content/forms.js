@@ -5,8 +5,15 @@ var LVForms = (() => {
   'use strict';
 
   const USERNAME_HINT = /user|login|e-?mail|account|uname|identifier|kullan[ıi]c[ıi]|e-?posta|e_posta|musteri|müşteri|tckn|tc_?kimlik|t\.?c\.?_?no|cust|phone|telefon|gsm|mobile/i;
-  const NOT_USERNAME_HINT = /search|arama|query|captcha|otp|one-?time|2fa|token|coupon|kupon|promo|zip|postal|posta_?kodu|newsletter|bülten/i;
-  const OTP_HINT = /otp|one-?time|2fa|mfa|totp|verification|verify|doğrulama|dogrulama|authenticat|sms[ _-]?code|auth[ _-]?code|security[ _-]?code|güvenlik[ _-]?kodu|onay[ _-]?kodu|\bcode\b|\bkodu?\b/i;
+  // "filter/filtre": uygulama ekranlarındaki liste süzgeçleri (ör. "AccountName_Filter" = alıcı unvanı)
+  const NOT_USERNAME_HINT = /search|arama|query|filter|filtre|captcha|otp|one-?time|2fa|token|coupon|kupon|promo|zip|postal|posta_?kodu|newsletter|bülten/i;
+  // Doğrulama kodu olduğunu tek başına gösteren ifadeler
+  const OTP_HINT = /otp|one-?time|2fa|mfa|totp|verification|verify|doğrulama|dogrulama|authenticat|sms[ _-]?(?:code|kodu?)|auth[ _-]?code|security[ _-]?code|güvenlik[ _-]?kodu|onay[ _-]?kodu/i;
+  // Yalnızca "kod/code": "Şube Kodu", "Cari Kodu" gibi alanlar da olabilir; kısa ve sayısal değilse sayılmaz
+  const OTP_WEAK_HINT = /\bcode\b|\bkodu?\b/i;
+  // Parolasız sayfada kullanıcı adı adımı için: giriş düğmesi / giriş sayfası adresi
+  const LOGIN_ACTION_HINT = /giriş|oturum|login|log in|log on|sign in|signin|devam|ileri|continue|next/i;
+  const LOGIN_PAGE_HINT = /login|log-?in|signin|sign-?in|giris|giriş|oturum|auth|account\/|sso|identifier/i;
   // "Kod" geçen ama doğrulama kodu olmayan alanlar
   const OTP_EXCLUDE = /coupon|kupon|promo|zip|postal|posta[ _-]?kodu|captcha|referral|referans|davet|invite|gift|hediye|country|ülke|area[ _-]?code|alan[ _-]?kodu|discount|indirim|voucher|iban|swift|tax|vergi|product|ürün|stok|sku/i;
   const TEXT_TYPES = new Set(['text', 'email', 'tel', '']);
@@ -47,7 +54,10 @@ var LVForms = (() => {
     if (tokens.includes('username') || tokens.includes('email')) return 'username';
 
     const text = `${a.name} ${a.id} ${a.placeholder} ${a.ariaLabel} ${a.label ?? ''}`;
-    if (OTP_HINT.test(text) && !OTP_EXCLUDE.test(text) && !USERNAME_HINT.test(`${a.name} ${a.id}`)) return 'otp';
+    const shortNumeric = (a.maxLength !== null && a.maxLength >= 4 && a.maxLength <= 8)
+      || a.inputMode === 'numeric' || a.type === 'tel' || a.type === 'number';
+    const otpLike = OTP_HINT.test(text) || (OTP_WEAK_HINT.test(text) && shortNumeric);
+    if (otpLike && !OTP_EXCLUDE.test(text) && !USERNAME_HINT.test(`${a.name} ${a.id}`)) return 'otp';
     if (a.type === 'number') return null;
     if (a.type === 'email') return 'username';
     if (USERNAME_HINT.test(text) && !NOT_USERNAME_HINT.test(text)) return 'username';
@@ -110,17 +120,37 @@ var LVForms = (() => {
       groups.push({ username, password, newPassword: kind === 'new-password' });
     }
 
-    // Çok adımlı girişlerin ilk adımı: yalnızca kullanıcı adı / e-posta alanı.
+    // Çok adımlı girişlerin ilk adımı: yalnızca kullanıcı adı / e-posta alanı. Uygulama ekranlarındaki
+    // "müşteri", "e-posta", "account" adlı alanlara simge koymamak için gerçek bir giriş adımı aranır.
     if (groups.length === 0) {
       for (const el of inputs) {
         if (used.has(el) || !isFillable(el)) continue;
-        if (classify(describe(el)) === 'username') {
+        if (classify(describe(el)) === 'username' && looksLikeLoginStep(el, inputs)) {
           groups.push({ username: el, password: null, newPassword: false });
           break;
         }
       }
     }
     return groups;
+  }
+
+  /**
+   * Parola alanı olmayan sayfada bu kullanıcı adı alanı bir giriş adımı mı? Alan tarayıcıya
+   * kullanıcı adı olarak işaretlenmişse evet; değilse formunda en fazla iki metin alanı olmalı ve
+   * bir giriş/devam düğmesi ya da giriş sayfası adresi bulunmalı.
+   */
+  function looksLikeLoginStep(el, inputs) {
+    const tokens = (el.getAttribute('autocomplete') || '').toLowerCase().split(/\s+/);
+    if (tokens.includes('username') || tokens.includes('webauthn')) return true;
+
+    const scope = container(el);
+    const textFields = inputs.filter((other) => container(other) === scope && isFillable(other)
+      && TEXT_TYPES.has((other.getAttribute('type') || 'text').toLowerCase()));
+    if (textFields.length > 2) return false;
+
+    if (LOGIN_PAGE_HINT.test(`${location.pathname} ${location.hash} ${document.title}`)) return true;
+    const buttons = scope.querySelectorAll('button, input[type="submit"], input[type="button"], [role="button"]');
+    return Array.from(buttons).some((b) => LOGIN_ACTION_HINT.test(`${b.textContent || ''} ${b.value || ''} ${b.getAttribute('aria-label') || ''}`));
   }
 
   /** React/Vue/Angular gibi çatıların değişikliği algılaması için yerel setter + input/change olayları. */
