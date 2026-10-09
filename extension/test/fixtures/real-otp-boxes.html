@@ -2,6 +2,9 @@
 <html lang="tr">
 <head><meta charset="utf-8"><title>Gerçek eklenti: 6 kutu</title><link rel="stylesheet" href="fixture.css"></head>
 <body>
+  <!-- Yaygın OTP bileşeni gibi: rakam tuşunda kutuyu kendisi doldurup ilerler, input'ta da ilerler,
+       odaklanan kutuyu seçer ve 6 hane dolunca otomatik doğrular. Odak geçmişi ve doğrulama sayısı
+       uçtan uca testte kontrol edilir (kutular arasında ileri geri gezinme olmamalı). -->
   <form class="card" action="#" onsubmit="return false">
     <h1>Güvenlik kodu</h1>
     <div class="boxes" id="boxes"></div>
@@ -9,9 +12,22 @@
   </form>
   <script>
     const host = document.getElementById('boxes');
-    for (let i = 0; i < 6; i++) host.insertAdjacentHTML('beforeend', '<input maxlength="1" inputmode="numeric">');
+    for (let i = 0; i < 6; i++) host.insertAdjacentHTML('beforeend', '<input maxlength="1" inputmode="numeric" autocomplete="off">');
     const boxes = [...host.querySelectorAll('input')];
-    boxes.forEach((b, i) => b.addEventListener('input', () => { if (b.value && boxes[i + 1]) boxes[i + 1].focus(); }));
+    window.__focusLog = [];
+    window.__submits = 0;
+    const maybeSubmit = () => { if (/^\d{6}$/.test(boxes.map((b) => b.value).join(''))) window.__submits++; };
+    boxes.forEach((box, i) => {
+      box.addEventListener('focus', () => { window.__focusLog.push(i); box.select(); });
+      box.addEventListener('keydown', (e) => {
+        if (/^\d$/.test(e.key)) { e.preventDefault(); box.value = e.key; boxes[i + 1]?.focus(); maybeSubmit(); }
+      });
+      box.addEventListener('input', () => {
+        box.value = box.value.replace(/\D/g, '').slice(-1);
+        if (box.value) boxes[i + 1]?.focus();
+        maybeSubmit();
+      });
+    });
   </script>
 </body>
 </html>

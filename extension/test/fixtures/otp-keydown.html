@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="fixture.css">
+  <title>OTP: tuşa tepki veren kutular</title>
+</head>
+<body>
+  <form class="card" onsubmit="return false">
+    <h1>Doğrulama kodu</h1>
+    <p>Yaygın OTP bileşenleri gibi: rakam tuşunda kutuyu kendisi doldurur ve sonraki kutuya geçer;
+      "input" olayında da ilerler; odaklanan kutunun içeriğini seçer.</p>
+    <div class="boxes" id="boxes"></div>
+    <div class="state" id="state"></div>
+    <button>Doğrula</button>
+  </form>
+  <script>
+    const host = document.getElementById('boxes');
+    for (let i = 0; i < 6; i++) host.insertAdjacentHTML('beforeend', '<input maxlength="1" inputmode="numeric" autocomplete="off">');
+    const boxes = [...host.querySelectorAll('input')];
+    window.__focusLog = [];
+    const show = () => { document.getElementById('state').textContent = 'kod=' + boxes.map((b) => b.value || '_').join('') + '  odak=' + window.__focusLog.join(','); };
+
+    boxes.forEach((box, i) => {
+      box.addEventListener('focus', () => { window.__focusLog.push(i); box.select(); show(); });
+      box.addEventListener('keydown', (e) => {
+        if (/^\d$/.test(e.key)) {
+          e.preventDefault();
+          box.value = e.key;
+          boxes[i + 1]?.focus();
+          show();
+        }
+      });
+      box.addEventListener('input', () => {
+        box.value = box.value.replace(/\D/g, '').slice(-1);
+        if (box.value) boxes[i + 1]?.focus();
+        show();
+      });
+    });
+    show();
+  </script>
+  <script src="../harness.js"></script>
+  <script src="../../src/content/forms.js"></script>
+  <script src="../../src/content/ui.js"></script>
+  <script src="../../src/content/content.js"></script>
+</body>
+</html>

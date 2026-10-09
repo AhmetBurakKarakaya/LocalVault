@@ -243,6 +243,12 @@ try {
     return v.length === 6 ? v : null;
   })()`), 10000, 'kutuların dolması');
   check('6 kutulu forma simgeyle kod dolduruldu', totpCodes().includes(boxed), boxed);
+  const boxStats = await page.evaluate(`(() => {
+    const log = window.__focusLog;
+    return { backward: log.filter((x, k) => k > 0 && x < log[k - 1]).length, focus: log.length, submits: window.__submits };
+  })()`);
+  check('Kutular arasında ileri geri gezinme yok ve site kodu tek kez doğruladı',
+    boxStats.backward === 0 && boxStats.submits === 1, `geri dönüş ${boxStats.backward}, doğrulama ${boxStats.submits}`);
   await capture(page, 'page-otp-boxes');
 
   const log = serverLog.filter((l) => /→/.test(l));

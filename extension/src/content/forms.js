@@ -210,14 +210,23 @@ var LVForms = (() => {
     return groups;
   }
 
+  /** Değeri yazar ve input/change olaylarını gönderir; odağa dokunmaz. */
+  function writeValue(el, value) {
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(el, value);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
   /**
    * Kodu doldurur. Çok kutulu formlarda önce yapıştırma olayı denenir (çoğu bileşen kodu kutulara
-   * kendisi dağıtır); işe yaramazsa kutular tek tek doldurulur.
+   * kendisi dağıtır); işe yaramazsa kutular sırayla doldurulur.
    */
   function fillOtp(group, code) {
     if (group.kind === 'single') {
       setValue(group.inputs[0], code);
-      return group.inputs[0].value === code;
+      // Bazı siteler kodu "123 456" biçiminde gösterir; yalnızca rakamları karşılaştır.
+      return group.inputs[0].value.replace(/\D/g, '') === code;
     }
 
     const boxes = group.inputs;
@@ -234,10 +243,13 @@ var LVForms = (() => {
     }
     if (filled()) return true;
 
+    // Kutuları yalnızca ileri yönde doldur. Çoğu bileşen bir rakam girilince odağı kendisi sonraki
+    // kutuya taşır; odağı geri almak veya yapay tuş olayı göndermek bileşenle çakışıp imlecin kutular
+    // arasında ileri geri gezinmesine (ve hanelerin kaymasına) yol açar.
     boxes.forEach((box, i) => {
-      box.dispatchEvent(new KeyboardEvent('keydown', { key: code[i], bubbles: true }));
-      setValue(box, code[i]);
-      box.dispatchEvent(new KeyboardEvent('keyup', { key: code[i], bubbles: true }));
+      if (box.value === code[i]) return;   // bileşen zaten doğru yazdıysa dokunma
+      if (document.activeElement !== box) box.focus({ preventScroll: true });
+      writeValue(box, code[i]);
     });
     return filled();
   }

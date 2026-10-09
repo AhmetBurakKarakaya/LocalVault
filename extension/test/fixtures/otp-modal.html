@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>2FA modal (kurumsal portal benzeri)</title>
+  <style>
+    body { margin: 0; font: 15px system-ui, -apple-system, "Segoe UI", sans-serif; background: #eef1f5; color: #1f2937; }
+    .page { padding: 40px; opacity: .5; }
+    .overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); display: flex; align-items: center; justify-content: center; }
+    .modal { background: #fff; width: 460px; border-radius: 14px; padding: 28px 32px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+    .shield { width: 56px; height: 56px; margin: 0 auto 14px; border-radius: 50%; background: #e8f0fe; display: flex; align-items: center; justify-content: center; color: #2563eb; font-size: 26px; }
+    h2 { margin: 0 0 10px; font-size: 20px; }
+    p { color: #6b7280; margin: 0 0 22px; line-height: 1.5; }
+    .otp { display: flex; gap: 12px; justify-content: center; margin-bottom: 10px; }
+    .otp input { width: 46px; height: 48px; text-align: center; font-size: 20px; border: 1px solid #d1d5db; border-radius: 8px; }
+    .otp input:focus { outline: 2px solid #2563eb; border-color: #2563eb; }
+    small { color: #6b7280; display: block; margin-bottom: 18px; }
+    button { width: 100%; padding: 12px; border: 0; border-radius: 8px; background: #3b82f6; color: #fff; font-size: 16px; font-weight: 600; }
+    .state { font: 12px monospace; color: #6b7280; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="page"><h1>Örnek Kurumsal Portal</h1><p>Arka plandaki sayfa içeriği…</p></div>
+  <div class="overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="t">
+      <div class="shield">🛡</div>
+      <h2 id="t">2FA (İki Faktörlü Kimlik Doğrulama)</h2>
+      <p>Telefonunuzdaki <b>Google Authenticator</b> veya <b>Microsoft Authenticator</b> uygulamasını açın,
+        <b>E-Portal</b> için görüntülenen <b>6 haneli kodu</b> aşağıya girin.</p>
+      <form id="f" onsubmit="return false">
+        <div class="otp" id="otp"></div>
+        <small>Kod 30 saniyede bir yenilenir.</small>
+        <button id="verify">Doğrula</button>
+      </form>
+      <div class="state" id="state"></div>
+    </div>
+  </div>
+  <script>
+    // ?mode=keyup   → ilerleme keyup'ta (input'ta değil)
+    // ?nopaste      → yapıştırmayı desteklemez
+    const params = new URLSearchParams(location.search);
+    const host = document.getElementById('otp');
+    for (let i = 0; i < 6; i++) host.insertAdjacentHTML('beforeend', '<input type="text" maxlength="1" inputmode="numeric" autocomplete="off" aria-label="Kod hanesi ' + (i + 1) + '">');
+    const boxes = [...host.querySelectorAll('input')];
+    window.__submits = 0;
+    const code = () => boxes.map((b) => b.value).join('');
+    const show = () => { document.getElementById('state').textContent = 'kod=' + boxes.map((b) => b.value || '_').join('') + '  doğrulama=' + window.__submits; };
+    const maybeSubmit = () => { if (/^\d{6}$/.test(code())) { window.__submits++; show(); } };   // 6 hane dolunca otomatik doğrula
+
+    boxes.forEach((box, i) => {
+      box.addEventListener('focus', () => box.select());
+      box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !box.value) boxes[i - 1]?.focus();
+        else if (/^\d$/.test(e.key)) { e.preventDefault(); box.value = e.key; if (params.get('mode') !== 'keyup') boxes[i + 1]?.focus(); maybeSubmit(); show(); }
+      });
+      box.addEventListener('input', () => {
+        box.value = box.value.replace(/\D/g, '').slice(-1);
+        if (box.value && params.get('mode') !== 'keyup') boxes[i + 1]?.focus();
+        maybeSubmit(); show();
+      });
+      box.addEventListener('keyup', (e) => {
+        if (params.get('mode') === 'keyup' && /^\d$/.test(e.key)) boxes[i + 1]?.focus();
+      });
+      if (!params.has('nopaste')) {
+        box.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6).split('');
+          digits.forEach((d, j) => { if (boxes[j]) boxes[j].value = d; });
+          boxes[Math.min(digits.length, 5)].focus();
+          maybeSubmit(); show();
+        });
+      }
+    });
+    show();
+  </script>
+  <script src="../harness.js"></script>
+  <script src="../../src/content/forms.js"></script>
+  <script src="../../src/content/ui.js"></script>
+  <script src="../../src/content/content.js"></script>
+</body>
+</html>
